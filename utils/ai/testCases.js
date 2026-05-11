@@ -152,5 +152,14 @@ export const testCases = [
     shouldUse: "fallback",
     expectedCount: 1,
     priorities: ["SAME_DAY"]
+  },
+  {
+    category: "Fallback Tests",
+    title: "🚽 Sewer Backup",
+    input: "Sewage is backing up into my shower and multiple drains are clogged",
+    expected: "Multiple matches for sewer backup and clogged drains",
+    shouldUse: "fallback",
+    expectedCount: 2,
+    priorities: ["SAME_DAY", "SAME_DAY"]
   }
 ];

@@ -195,17 +195,31 @@
         </div>
       </div>
 
-      <!-- Debug Section (click to toggle raw vs diagnostic) -->
+      <!-- Debug Section (click anywhere to toggle raw vs diagnostic) -->
       <div 
-        class="bg-gray-900 text-gray-100 p-6 rounded-lg font-mono text-xs cursor-pointer select-none"
+        class="bg-gray-900 text-gray-100 p-6 rounded-lg font-mono text-xs cursor-pointer select-none hover:bg-gray-800 transition-colors"
         @click="toggleDebug"
-        title="Click to toggle Raw vs Diagnostic debug output"
+        title="Click anywhere to toggle between Raw and Diagnostic debug output"
       >
         <div class="flex items-center justify-between mb-4">
           <p class="font-bold">🔧 Debug Panel ({{ showDebug ? 'Diagnostic' : 'Raw' }})</p>
-          <span class="px-2 py-1 rounded bg-gray-800 text-[10px]">click to toggle</span>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-1 rounded bg-gray-800 text-[10px] hover:bg-gray-700 transition-colors">
+              {{ showDebug ? '🔍 Diagnostic' : '📊 Raw' }}
+            </span>
+            <button 
+              @click.stop="copyDebugOutput"
+              class="px-2 py-1 rounded bg-green-800 text-[10px] hover:bg-green-700 transition-colors flex items-center gap-1"
+              title="Copy debug output to clipboard"
+            >
+              📋 Copy
+            </button>
+            <span class="px-2 py-1 rounded bg-blue-800 text-[10px] hover:bg-blue-700 transition-colors">
+              click to toggle
+            </span>
+          </div>
         </div>
-        <pre class="overflow-x-auto">{{ JSON.stringify(debugPayload, null, 2) }}</pre>
+        <pre class="overflow-x-auto cursor-text">{{ JSON.stringify(debugPayload, null, 2) }}</pre>
       </div>
     </div>
   </div>
@@ -273,6 +287,24 @@ const loadTestCase = (text) => {
 
 const toggleTestSuite = () => { showTestSuite.value = !showTestSuite.value }
 const toggleDebug = () => { showDebug.value = !showDebug.value }
+
+const copyDebugOutput = async () => {
+  const text = JSON.stringify(debugPayload.value, null, 2)
+  try {
+    await navigator.clipboard.writeText(text)
+    // Show brief success feedback
+    const button = event.target
+    const originalText = button.innerHTML
+    button.innerHTML = '✅ Copied!'
+    button.classList.add('bg-green-600')
+    setTimeout(() => {
+      button.innerHTML = originalText
+      button.classList.remove('bg-green-600')
+    }, 1500)
+  } catch (err) {
+    console.error('Failed to copy:', err)
+  }
+}
 
 // Live debug payload toggles between raw (results) and diagnostic (debugAISuggestion)
 const debugPayload = computed(() => {
