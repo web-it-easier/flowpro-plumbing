@@ -3,28 +3,37 @@
  * Provides predictable test data without loading from files
  */
 
+// What needs fixing (PLUMBING_ISSUE_ITEM_LOOKUP)
 export const mockPlumbingIssueItems = {
-  'toilet': { category: 'fixture', type: 'plumbing' },
-  'sink': { category: 'fixture', type: 'plumbing' },
-  'faucet': { category: 'fixture', type: 'plumbing' },
-  'shower': { category: 'fixture', type: 'plumbing' },
-  'bathtub': { category: 'fixture', type: 'plumbing' },
-  'bathroom': { category: 'room', type: 'area' },
-  'kitchen': { category: 'room', type: 'area' },
-  'ceiling': { category: 'structure', type: 'area' },
-  'wall': { category: 'structure', type: 'area' },
-  'floor': { category: 'structure', type: 'area' },
-  'pipe': { category: 'component', type: 'plumbing' },
-  'water heater': { category: 'appliance', type: 'plumbing' },
-  'drain': { category: 'component', type: 'plumbing' }
+  'toilet': { dispatchCategory: 'fixture' },
+  'sink': { dispatchCategory: 'fixture' },
+  'faucet': { dispatchCategory: 'fixture' },
+  'shower': { dispatchCategory: 'fixture' },
+  'bathtub': { dispatchCategory: 'fixture' },
+  'bathroom': { dispatchCategory: 'fixture' },
+  'kitchen': { dispatchCategory: 'fixture' },
+  'ceiling': { dispatchCategory: 'fixture' },
+  'wall': { dispatchCategory: 'fixture' },
+  'floor': { dispatchCategory: 'fixture' },
+  'pipe': { dispatchCategory: 'component' },
+  'water heater': { dispatchCategory: 'appliance' },
+  'drain': { dispatchCategory: 'component' },
+  'fill valve': { dispatchCategory: 'component' },
+  'flapper': { dispatchCategory: 'component' }
 }
 
+// Where damage is visible (DAMAGE_PLACE_LOOKUP)
 export const mockDamagePlaceLookup = {
-  'ceiling': { category: 'damage_place', severity: 'medium' },
-  'wall': { category: 'damage_place', severity: 'medium' },
-  'floor': { category: 'damage_place', severity: 'medium' },
-  'foundation': { category: 'damage_place', severity: 'high' }
+  'bathroom': { category: 'room' },
+  'kitchen': { category: 'room' },
+  'bedroom': { category: 'room' },
+  'ceiling': { category: 'surface' },
+  'wall': { category: 'surface' },
+  'floor': { category: 'surface' },
+  'foundation': { category: 'structure' },
+  'basement': { category: 'room' }
 }
+
 
 export const mockSymptoms = {
   'leaking': { category: 'symptom', urgency: 'medium' },
