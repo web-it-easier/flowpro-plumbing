@@ -552,64 +552,64 @@ export function findContextualMatches(text) {
 
   // 1. Initialize empty arrays and sets to track matches and prevent duplicates
   //    matches = [] (will hold all final matches)
-  //    usedAreas = new Set() (tracks areas already matched)
-  //    usedSymptoms = new Set() (tracks symptoms already matched)
-  //    seenPairs = new Set() (tracks area+symptom combinations to avoid duplicates)
-  const matches = []
-  const usedAreas = new Set()
-  const usedSymptoms = new Set()
-  const seenPairs = new Set()
+  //    processedWorkLocations = new Set() (tracks work locations already processed)
+  //    processedSymptoms = new Set() (tracks symptoms already processed)
+  //    processedLocationSymptomPairs = new Set() (tracks location+symptom combinations already processed)
+  const plumbingIssueReports = []
+  const processedWorkLocations = new Set()
+  const processedSymptoms = new Set()
+  const processedLocationSymptomPairs = new Set()
 
   // 2. Split text into clauses for context processing
   //    Input: "The bathroom ceiling is dripping and sagging, the wall is wet"
   //    After split: ["The bathroom ceiling is dripping and sagging", "the wall is wet"]
   //    NOTE: Don't split on 'and' - we need it for symptom grouping (e.g., "bubbling and sagging")
-  const clauses = text
+  const clientInputClauses = text
     .split(/[,;.]/)
     .map(c => normalizeText(c.trim()))
     .filter(c => c.length > 0)
 
   // 3. Process each clause separately
-  for (const clause of clauses) {
+  for (const clientInputClause of clientInputClauses) {
     // First clause: "the bathroom ceiling is dripping and sagging"
     // Second clause: "the wall is wet"
 
     // 4. Collect location aliases and symptom groups from clause
     //    For "the bathroom ceiling is dripping and sagging":
-    //    clauseAreas = [{plumbingIssueLocId: "bathroom", alias: "bathroom"}] (location from damagePlaces.js)
-    //    clauseSymptomGroups = [["dripping", "sagging"]] (grouped by "and")
-    const { areaAliases: clauseAreas, symptomGroups: clauseSymptomGroups } = collectAreaAliases(clause)
+    //    foundLocations = [{plumbingIssueLocId: "bathroom", alias: "bathroom"}] (location from damagePlaces.js)
+    //    foundSymptomGroups = [["dripping", "sagging"]] (grouped by "and")
+    const { areaAliases: foundLocations, symptomGroups: foundSymptomGroups } = collectAreaAliases(clientInputClause)
 
     // 5. Process each location found in the clause
-    for (const area of clauseAreas) {
+    for (const area of foundLocations) {
       // First iteration: area = {plumbingIssueLocId: "bathroom", alias: "bathroom"}
       // Note: "bathroom" is a location (from damagePlaces.js), not a fixture
       console.log('DEBUG: Processing area:', area)
 
-      // 6. Get allowed symptoms for this location from VALID_SYMPTOMS_BY_CATEGORY
-      //    For bathroom location: allowed = {"leak", "dripping", "overflowing", "clogged", ...}
+      // 6. Get valid symptoms for this location from VALID_SYMPTOMS_BY_CATEGORY
+      //    For bathroom location: validSymptomsForLocation = {"leak", "dripping", "overflowing", "clogged", ...}
       //    These symptoms are valid when they appear in bathroom context
-      const allowed = VALID_SYMPTOMS_BY_CATEGORY.get(area.plumbingIssueLocId) || new Set()
-      console.log('DEBUG: Allowed symptoms for area:', Array.from(allowed))
-      if (allowed.size === 0) continue
+      const validSymptomsForLocation = VALID_SYMPTOMS_BY_CATEGORY.get(area.plumbingIssueLocId) || new Set()
+      console.log('DEBUG: Valid symptoms for area:', Array.from(validSymptomsForLocation))
+      if (validSymptomsForLocation.size === 0) continue
 
       // 7. Collect symptoms found in clause that are valid for this area
       //    Clause: "the bathroom ceiling is dripping and sagging"
       //    Valid symptoms for bathroom: ["dripping", "sagging"]
-      let clauseSymptomsForArea = collectSymptomAliasesForIds(clause, allowed)
-      clauseSymptomsForArea = pruneRedundantSymptomAliases(clauseSymptomsForArea)
-      console.log('DEBUG: Found symptoms for area:', clauseSymptomsForArea)
+      let foundValidSymptoms = collectSymptomAliasesForIds(clientInputClause, validSymptomsForLocation)
+      foundValidSymptoms = pruneRedundantSymptomAliases(foundValidSymptoms)
+      console.log('DEBUG: Found symptoms for area:', foundValidSymptoms)
 
       // 8. Separate grouped symptoms from individual symptoms
-      //    Input: clauseSymptomsForArea = ["dripping", "sagging"]
-      //    Input: clauseSymptomGroups = [["dripping", "sagging"]]
-      //    Output: symptomData = {
+      //    Input: foundValidSymptoms = ["dripping", "sagging"]
+      //    Input: foundSymptomGroups = [["dripping", "sagging"]]
+      //    Output: separatedSymptoms = {
       //      individualSymptoms: [], (none, both are grouped)
       //      groupedSymptoms: [["dripping", "sagging"]]
       //    }
-      const symptomData = processSymptomsByArea(clauseSymptomsForArea, clauseSymptomGroups, allowed)
-      console.log('DEBUG: Grouped symptoms:', symptomData.groupedSymptoms)
-      console.log('DEBUG: Individual symptoms:', symptomData.individualSymptoms)
+      const separatedSymptoms = processSymptomsByArea(foundValidSymptoms, foundSymptomGroups, validSymptomsForLocation)
+      console.log('DEBUG: Grouped symptoms:', separatedSymptoms.groupedSymptoms)
+      console.log('DEBUG: Individual symptoms:', separatedSymptoms.individualSymptoms)
 
       // 9. Process area-symptom pairs and create match objects
       //    Creates match for: bathroom + "dripping and sagging"
@@ -624,20 +624,20 @@ export function findContextualMatches(text) {
       //    }
       const areaMatches = processAreaSymptomPairs(
         area,
-        symptomData,
-        usedAreas,
-        usedSymptoms,
-        seenPairs,
+        separatedSymptoms,
+        processedWorkLocations,
+        processedSymptoms,
+        processedLocationSymptomPairs,
         getWorkItemCategory,
         getTeamSizeRecommendation
       )
-      matches.push(...areaMatches)
+      plumbingIssueReports.push(...areaMatches)
     }
 
     // 10. Collect all symptoms in clause for fallback handling
     //    For "the bathroom ceiling is dripping and sagging":
     //    clauseSymptomsAll = ["dripping", "sagging"]
-    let clauseSymptomsAll = collectSymptomAliases(clause)
+    let clauseSymptomsAll = collectSymptomAliases(clientInputClause)
     clauseSymptomsAll = pruneRedundantSymptomAliases(clauseSymptomsAll)
 
     // 11. Add fallback matches for unused symptoms and areas
@@ -653,13 +653,13 @@ export function findContextualMatches(text) {
     //    }
     const fallbackMatches = addFallbackMatches(
       clauseSymptomsAll,
-      clauseAreas,
-      usedSymptoms,
-      usedAreas,
+      foundLocations,
+      processedSymptoms,
+      processedWorkLocations,
       getWorkItemCategory,
       getTeamSizeRecommendation
     )
-    matches.push(...fallbackMatches)
+    plumbingIssueReports.push(...fallbackMatches)
   }
 
   // 12. Return all matches found across all clauses
@@ -667,7 +667,7 @@ export function findContextualMatches(text) {
   //      {plumbingIssueLocId: "bathroom", symptomId: "dripping_and_sagging", ...},
   //      {plumbingIssueLocId: "wall", symptomId: null, ...} (if wall had no symptoms)
   //    ]
-  return matches
+  return plumbingIssueReports
 }
 
 // ========================================
@@ -713,7 +713,8 @@ export function findContextualMatches(text) {
  */
 export function findFallbackMatches(text) {
   // Step 1: Find area and symptom words independently using regex
-  const areaMatches = findAreaMatches(text)
+  const { fixableItems, damageLocations } = findFixableItemsAndDamageLocations(text)
+  const areaMatches = [...fixableItems, ...damageLocations]
   const symptomMatches = findSymptomMatches(text)
 
   // Step 2: Extract unique IDs for pattern matching
@@ -785,20 +786,23 @@ const collectRegexMatches = (text, regex, lookup) => {
   return accepted.map(({ len: _len, ...rest }) => rest)
 }
 
-export function findAreaMatches(text) {
-  // Find matches from both plumbing issues and locations
-  // Prioritize plumbing issues (what needs fixing) over locations (where damage shows)
-  const plumbingIssueMatches = collectRegexMatches(text, PLUMBING_ISSUE_REGEX, PLUMBING_ISSUE_ITEM_LOOKUP)
-  const locationMatches = collectRegexMatches(text, DAMAGE_PLACE_REGEX, DAMAGE_PLACE_LOOKUP)
 
-  // Combine and deduplicate by ID
-  const combined = [...plumbingIssueMatches, ...locationMatches]
-  const seen = new Set()
-  return combined.filter(match => {
-    if (seen.has(match.id)) return false
-    seen.add(match.id)
-    return true
-  })
+// New, clearer APIs
+// Returns only the fixable plumbing items (WHAT needs fixing)
+export function findFixableItems(text) {
+  return collectRegexMatches(text, PLUMBING_ISSUE_REGEX, PLUMBING_ISSUE_ITEM_LOOKUP)
+}
+
+// Returns only the damage locations (WHERE damage is visible)
+export function findDamageLocations(text) {
+  return collectRegexMatches(text, DAMAGE_PLACE_REGEX, DAMAGE_PLACE_LOOKUP)
+}
+
+// Returns both categories in a structured object for clearer downstream use
+export function findFixableItemsAndDamageLocations(text) {
+  const fixableItems = findFixableItems(text)
+  const damageLocations = findDamageLocations(text)
+  return { fixableItems, damageLocations }
 }
 
 export function findSymptomMatches(text) {
@@ -894,8 +898,10 @@ export function findPatterns(text) {
  * Debug function to show what would be matched
  */
 export function debugMatches(text) {
+  const { fixableItems, damageLocations } = findFixableItemsAndDamageLocations(text)
   return {
-    areas: findAreaMatches(text),
+    fixableItems,
+    damageLocations,
     symptoms: findSymptomMatches(text),
     patterns: findPatterns(text)
   }
