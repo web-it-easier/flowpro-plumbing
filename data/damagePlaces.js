@@ -81,13 +81,13 @@ export default [
   // FIXTURES - Large fixtures where damage is visible (context locations)
   {
     "id": "bathtub",
-    "aliases": ["bathtub", "tub", "soaking tub", "jacuzzi", "whirlpool", "jetted tub"],
+    "aliases": ["bathtub", "tub", "soaking tub"],
     "category": "fixture",
     "description": "Bathtub fixture where damage/leaks are visible (plumber fixes faucet, drain, or components)"
   },
   {
     "id": "shower_stall",
-    "aliases": ["shower", "shower stall", "shower enclosure", "shower pan"],
+    "aliases": ["shower stall", "shower enclosure", "shower pan", "walk in shower"],
     "category": "fixture", 
     "description": "Shower fixture where damage/leaks are visible (plumber fixes shower head, valves, or drain)"
   },
@@ -112,7 +112,7 @@ export default [
   },
   {
     "id": "foundation",
-    "aliases": ["foundation", "concrete foundation", "slab", "foundation wall", "crawl space"],
+    "aliases": ["foundation", "concrete foundation", "slab", "foundation wall"],
     "category": "structure",
     "description": "Foundation areas where water intrusion occurs"
   },
