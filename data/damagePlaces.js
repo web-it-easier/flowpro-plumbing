@@ -93,7 +93,7 @@ export default [
   },
   {
     "id": "shower_stall",
-    "aliases": ["shower stall", "shower enclosure", "shower pan", "walk in shower"],
+    "aliases": ["shower", "shower stall", "shower enclosure", "shower pan", "walk in shower"],
     "category": "fixture", 
     "description": "Shower fixture where damage/leaks are visible (plumber fixes shower head, valves, or drain)"
   },

@@ -86,12 +86,6 @@ export const PLUMBING_ISSUE_ITEMS = [
     "technicalDescription": "Mesh screen at faucet tip that mixes air with water"
   },
     {
-    "locationId": "shower",
-    "customerSearchTerms": ["shower", "shower stall", "walk in shower"],
-    "dispatchCategory": "fixture",
-    "technicalDescription": "Shower enclosure with valve, head, and drain"
-  },
-  {
     "locationId": "shower_head",
     "customerSearchTerms": ["shower head", "showerhead", "rain shower", "hand shower"],
     "dispatchCategory": "component",
