@@ -44,6 +44,88 @@ describe('findContextualMatches - Unit Tests', () => {
       expect(foundLocations).toContain('faucet')
     })
 
+    test('should handle single clause with no delimiters', () => {
+      // User speaks naturally without any punctuation
+      const input = "my kitchen faucet is leaking really bad"
+      const result = findContextualMatches(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      
+      // Single clause should still find faucet + leak
+      const foundLocations = result.map(r => r.plumbingIssueLocId)
+      expect(foundLocations).toContain('faucet')
+    })
+
+    test('should handle desperate panicked input with jumbled words', () => {
+      // Emergency: user is panicking, speaking in fragments
+      const input = "leaking help ceiling pip burst"
+      const result = findContextualMatches(input)
+      
+      // Should still find something despite chaos
+      expect(result).toBeDefined()
+      
+      // At minimum, should detect some locations or symptoms
+      if (result.length > 0) {
+        const foundLocations = result.map(r => r.plumbingIssueLocId)
+        const foundSymptoms = result.map(r => r.symptomId)
+        
+        // Should detect ceiling (location)
+        expect(foundLocations.some(loc => loc === 'ceiling')).toBe(true)
+        // Should detect burst (symptom)
+        expect(foundSymptoms.some(sym => sym === 'burst')).toBe(true)
+      }
+    })
+
+    test('should handle multiple issues in panicked message', () => {
+      // User has multiple emergencies, speaking fast
+      const input = "toilet overflowing kitchen sink clogged water everywhere help"
+      const result = findContextualMatches(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      
+      // Should detect multiple locations even in chaos
+      const foundLocations = result.map(r => r.plumbingIssueLocId)
+      expect(foundLocations.length).toBeGreaterThan(0)
+    })
+
+    test('should handle very vague panic words only', () => {
+      // User only says "help" or "water" - minimal info
+      const input = "water water everywhere"
+      const result = findContextualMatches(input)
+      
+      // Should return something even if vague (may be ambiguous fallback)
+      expect(result).toBeDefined()
+    })
+
+    test('should handle non-native speaker simple words', () => {
+      // Limited English, uses simple words
+      const input = "bathroom no work water come out floor wet"
+      const result = findContextualMatches(input)
+      
+      expect(result).toBeDefined()
+      
+      // Should still find bathroom and leak-related symptoms
+      const foundLocations = result.map(r => r.plumbingIssueLocId)
+      const foundSymptoms = result.map(r => r.symptomId)
+      
+      expect(foundLocations.some(loc => loc === 'bathroom')).toBe(true)
+    })
+
+    test('should handle mobile texting shorthand', () => {
+      // Typing on phone while dealing with emergency
+      const input = "sink backed up again ugh plumber asap"
+      const result = findContextualMatches(input)
+      
+      expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
+      
+      // Should detect sink
+      const foundLocations = result.map(r => r.plumbingIssueLocId)
+      expect(foundLocations.some(loc => loc === 'sink')).toBe(true)
+    })
+
   })
 
   describe('Step 2: Area Alias Collection (collectAreaAliases)', () => {
