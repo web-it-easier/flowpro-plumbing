@@ -78,6 +78,19 @@ export default [
     "category": "location",
     "description": "Exterior areas where damage is visible (context location)"
   },
+  // FIXTURES - Large fixtures where damage is visible (context locations)
+  {
+    "id": "bathtub",
+    "aliases": ["bathtub", "tub", "soaking tub", "jacuzzi", "whirlpool", "jetted tub"],
+    "category": "fixture",
+    "description": "Bathtub fixture where damage/leaks are visible (plumber fixes faucet, drain, or components)"
+  },
+  {
+    "id": "shower_stall",
+    "aliases": ["shower", "shower stall", "shower enclosure", "shower pan"],
+    "category": "fixture", 
+    "description": "Shower fixture where damage/leaks are visible (plumber fixes shower head, valves, or drain)"
+  },
   // SURFACES - Physical surfaces where damage appears
   {
     "id": "ceiling",

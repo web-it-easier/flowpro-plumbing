@@ -116,10 +116,10 @@ export const PLUMBING_ISSUE_ITEMS = [
     "technicalDescription": "Enclosure door for shower area"
   },
   {
-    "locationId": "bathtub",
-    "customerSearchTerms": ["bathtub", "tub", "soaking tub"],
+    "locationId": "bathtub_faucet",
+    "customerSearchTerms": ["bathtub faucet", "tub faucet", "soaking tub faucet", "tub spout", "bathtub spout"],
     "dispatchCategory": "fixture",
-    "technicalDescription": "Bathtub with drain, overflow, and fixtures"
+    "technicalDescription": "Faucet assembly for bathtub with spout and handles"
   },
   {
     "locationId": "tub_drain",
