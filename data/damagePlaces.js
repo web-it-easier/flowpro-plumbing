@@ -86,6 +86,12 @@ export default [
     "description": "Bathtub fixture where damage/leaks are visible (plumber fixes faucet, drain, or components)"
   },
   {
+    "id": "sink",
+    "aliases": ["sink", "basin", "kitchen sink", "bathroom sink", "vanity sink", "wash basin"],
+    "category": "fixture",
+    "description": "Sink basin where damage/leaks are visible (plumber fixes faucet, drain, or supply lines)"
+  },
+  {
     "id": "shower_stall",
     "aliases": ["shower stall", "shower enclosure", "shower pan", "walk in shower"],
     "category": "fixture", 

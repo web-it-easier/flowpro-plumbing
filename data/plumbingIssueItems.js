@@ -85,13 +85,7 @@ export const PLUMBING_ISSUE_ITEMS = [
     "dispatchCategory": "component",
     "technicalDescription": "Mesh screen at faucet tip that mixes air with water"
   },
-  {
-    "locationId": "sink",
-    "customerSearchTerms": ["sink", "basin", "kitchen sink", "bathroom sink", "vanity sink", "wash basin"],
-    "dispatchCategory": "fixture",
-    "technicalDescription": "Sink basins with drains and supply lines"
-  },
-  {
+    {
     "locationId": "shower",
     "customerSearchTerms": ["shower", "shower stall", "walk in shower"],
     "dispatchCategory": "fixture",
@@ -132,6 +126,12 @@ export const PLUMBING_ISSUE_ITEMS = [
     "customerSearchTerms": ["overflow drain", "overflow plate", "trip lever cover", "overflow gasket"],
     "dispatchCategory": "component",
     "technicalDescription": "Secondary drain preventing tub overflow"
+  },
+  {
+    "locationId": "shower_drain",
+    "customerSearchTerms": ["shower drain", "shower drain cover", "shower strainer", "shower grate"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Drain assembly for shower stall with cover/grate"
   },
   {
     "locationId": "jacuzzi",
