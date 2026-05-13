@@ -83,11 +83,19 @@ describe('findContextualMatches - Unit Tests', () => {
       const result = findContextualMatches(input)
       
       expect(result).toBeDefined()
-      expect(result.length).toBeGreaterThan(0)
+      expect(result.length).toBeGreaterThanOrEqual(2)
       
-      // Should detect multiple locations even in chaos
+      // Should detect BOTH toilet AND sink, not just one
       const foundLocations = result.map(r => r.plumbingIssueLocId)
-      expect(foundLocations.length).toBeGreaterThan(0)
+      expect(foundLocations).toContain('toilet')
+      expect(foundLocations).toContain('sink')
+      
+      // Should match correct symptoms to each location
+      const toiletMatch = result.find(r => r.plumbingIssueLocId === 'toilet')
+      const sinkMatch = result.find(r => r.plumbingIssueLocId === 'sink')
+      
+      expect(toiletMatch).toBeDefined()
+      expect(sinkMatch).toBeDefined()
     })
 
     test('should handle very vague panic words only', () => {
@@ -95,8 +103,17 @@ describe('findContextualMatches - Unit Tests', () => {
       const input = "water water everywhere"
       const result = findContextualMatches(input)
       
-      // Should return something even if vague (may be ambiguous fallback)
-      expect(result).toBeDefined()
+      // Should always return an array, never undefined/null
+      expect(Array.isArray(result)).toBe(true)
+      
+      // If results exist, they should have valid structure
+      if (result.length > 0) {
+        result.forEach(match => {
+          expect(match).toHaveProperty('plumbingIssueLocId')
+          expect(match).toHaveProperty('symptomId')
+          expect(match).toHaveProperty('method')
+        })
+      }
     })
 
     test('should handle non-native speaker simple words', () => {
@@ -105,12 +122,19 @@ describe('findContextualMatches - Unit Tests', () => {
       const result = findContextualMatches(input)
       
       expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThan(0)
       
-      // Should still find bathroom and leak-related symptoms
+      // Should find bathroom as location
       const foundLocations = result.map(r => r.plumbingIssueLocId)
-      const foundSymptoms = result.map(r => r.symptomId)
-      
       expect(foundLocations.some(loc => loc === 'bathroom')).toBe(true)
+      
+      // Should find floor as location (from "floor wet")
+      expect(foundLocations.some(loc => loc === 'floor')).toBe(true)
+      
+      // Non-native speaker words like "no work" / "come out" may not match symptoms
+      // So we accept area-only matches as fallback
+      const areaOnlyMatches = result.filter(r => r.method === 'area_only')
+      expect(areaOnlyMatches.length).toBeGreaterThan(0)
     })
 
     test('should handle mobile texting shorthand', () => {
@@ -121,9 +145,15 @@ describe('findContextualMatches - Unit Tests', () => {
       expect(result).toBeDefined()
       expect(result.length).toBeGreaterThan(0)
       
-      // Should detect sink
+      // Should detect sink as location
       const foundLocations = result.map(r => r.plumbingIssueLocId)
       expect(foundLocations.some(loc => loc === 'sink')).toBe(true)
+      
+      // "backed up" may not match a symptom directly, so accept area-only
+      // The important thing is sink was identified for dispatcher
+      const sinkMatch = result.find(r => r.plumbingIssueLocId === 'sink')
+      expect(sinkMatch).toBeDefined()
+      expect(sinkMatch.areaAlias).toBe('sink')
     })
 
   })
@@ -367,8 +397,12 @@ describe('findContextualMatches - Unit Tests', () => {
       const input = "bathroom ceiling is leaking, bathroom wall is wet"
       const result = findContextualMatches(input)
       
-      // Should detect both ceiling and wall as separate locations
+      // Should detect BOTH ceiling AND wall as separate locations
       const foundIds = result.map(r => r.plumbingIssueLocId)
+      expect(foundIds).toContain('ceiling')
+      expect(foundIds).toContain('wall')
+      
+      // Should have no duplicates
       const uniqueIds = [...new Set(foundIds)]
       expect(uniqueIds.length).toBe(foundIds.length)
     })
