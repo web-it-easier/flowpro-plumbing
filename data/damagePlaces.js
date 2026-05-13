@@ -97,6 +97,24 @@ export default [
     "category": "fixture", 
     "description": "Shower fixture where damage/leaks are visible (plumber fixes shower head, valves, or drain)"
   },
+  {
+    "id": "washing_machine",
+    "aliases": ["washing machine", "washer", "clothes washer", "laundry machine"],
+    "category": "fixture",
+    "description": "Washing machine fixture where damage/leaks are visible (plumber fixes supply lines, valves, or drain connections)"
+  },
+  {
+    "id": "ice_maker",
+    "aliases": ["ice maker", "icemaker", "ice machine", "refrigerator ice maker"],
+    "category": "fixture",
+    "description": "Ice maker fixture where damage/leaks are visible (plumber fixes water supply line and connections)"
+  },
+  {
+    "id": "dishwasher",
+    "aliases": ["dishwasher", "dish washing machine", "built-in dishwasher", "undercounter dishwasher"],
+    "category": "fixture",
+    "description": "Dishwasher fixture where damage/leaks are visible (plumber fixes supply line, drain hose, or air gap)"
+  },
   // SURFACES - Physical surfaces where damage appears
   {
     "id": "ceiling",
