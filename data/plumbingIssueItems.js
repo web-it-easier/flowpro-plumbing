@@ -98,12 +98,6 @@ export const PLUMBING_ISSUE_ITEMS = [
     "technicalDescription": "Valve controlling water temperature and flow to shower head"
   },
   {
-    "locationId": "shower_door",
-    "customerSearchTerms": ["shower door", "shower enclosure", "glass door"],
-    "dispatchCategory": "component",
-    "technicalDescription": "Enclosure door for shower area"
-  },
-  {
     "locationId": "bathtub_faucet",
     "customerSearchTerms": ["bathtub faucet", "tub faucet", "soaking tub faucet", "tub spout", "bathtub spout"],
     "dispatchCategory": "fixture",
@@ -126,12 +120,6 @@ export const PLUMBING_ISSUE_ITEMS = [
     "customerSearchTerms": ["shower drain", "shower drain cover", "shower strainer", "shower grate"],
     "dispatchCategory": "component",
     "technicalDescription": "Drain assembly for shower stall with cover/grate"
-  },
-  {
-    "locationId": "jacuzzi",
-    "customerSearchTerms": ["jacuzzi", "whirlpool", "jetted tub", "spa tub", "hot tub"],
-    "dispatchCategory": "fixture",
-    "technicalDescription": "Jetted bathtub with pump and motor"
   },
   {
     "locationId": "jacuzzi_motor",
@@ -163,24 +151,63 @@ export const PLUMBING_ISSUE_ITEMS = [
     "dispatchCategory": "fixture",
     "technicalDescription": "Exterior water faucet for hoses and irrigation"
   },
-  // APPLIANCES
+  // DISHWASHER PLUMBING COMPONENTS
   {
-    "locationId": "dishwasher",
-    "customerSearchTerms": ["dishwasher", "dish washer", "dish machine", "portable dishwasher"],
-    "dispatchCategory": "appliance",
-    "technicalDescription": "Dishwashing appliance with water supply and drain"
+    "locationId": "air_gap",
+    "customerSearchTerms": ["air gap", "dishwasher air gap", "airgap", "dishwasher vent"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Air gap preventing backflow in dishwasher drain line"
   },
   {
-    "locationId": "washing_machine",
-    "customerSearchTerms": ["washing machine", "washer", "clothes washer", "laundry machine"],
-    "dispatchCategory": "appliance",
-    "technicalDescription": "Washing machine with hot/cold supply lines and drain"
+    "locationId": "dishwasher_supply",
+    "customerSearchTerms": ["dishwasher supply", "dishwasher hose", "dishwasher water line", "dishwasher connection", "dishwasher valve"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Water supply line and shutoff valve for dishwasher"
   },
   {
-    "locationId": "ice_maker",
-    "customerSearchTerms": ["ice maker", "icemaker", "ice machine", "refrigerator ice maker"],
-    "dispatchCategory": "appliance",
-    "technicalDescription": "Refrigerator ice maker with water supply line"
+    "locationId": "dishwasher_drain",
+    "customerSearchTerms": ["dishwasher drain", "dishwasher drain hose", "dishwasher drainage", "dishwasher clogged", "dishwasher backing up"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Drain hose and connection for dishwasher wastewater"
+  },
+
+  // WASHING MACHINE PLUMBING COMPONENTS
+  {
+    "locationId": "washer_supply_lines",
+    "customerSearchTerms": ["washer hoses", "washing machine hoses", "washer supply lines", "washing machine water lines", "laundry hoses"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Hot and cold water supply hoses connecting washing machine to shutoff valves"
+  },
+  {
+    "locationId": "washer_shutoff_valves",
+    "customerSearchTerms": ["washer valves", "washing machine valves", "laundry valves", "washer shutoff", "washing machine shutoff valves"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Hot and cold water shutoff valves for washing machine supply"
+  },
+  {
+    "locationId": "washer_drain_hose",
+    "customerSearchTerms": ["washer drain hose", "washing machine drain hose", "laundry drain hose", "washer discharge hose"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Flexible drain hose carrying wastewater from washing machine to standpipe"
+  },
+  {
+    "locationId": "washer_standpipe",
+    "customerSearchTerms": ["washer standpipe", "washing machine standpipe", "laundry standpipe", "washer drain pipe", "laundry drain pipe"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Vertical drain pipe receiving wastewater from washing machine drain hose"
+  },
+  // ICE MAKER PLUMBING COMPONENTS
+  {
+    "locationId": "ice_maker_supply_line",
+    "customerSearchTerms": ["ice maker line", "refrigerator water line", "fridge water line", "fridge water tube", "ice maker water line"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Dedicated water supply line or tube feeding refrigerator ice maker"
+  },
+  {
+    "locationId": "ice_maker_shutoff_valve",
+    "customerSearchTerms": ["ice maker valve", "fridge water valve", "refrigerator water valve", "ice maker shutoff", "fridge shutoff valve"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Shutoff valve controlling water supply to refrigerator ice maker"
   },
   {
     "locationId": "water_heater",
