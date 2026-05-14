@@ -7,7 +7,9 @@ import DAMAGE_PLACES from '../../data/damagePlaces.js'
 import { PLUMBING_ISSUE_ITEMS } from '../../data/plumbingIssueItems.js'
 import SYMPTOMS from '../../data/symptoms.js'
 import AREA_JOB_CONFIGS from '../../data/areaJobConfigs.js'
-import { buildAreaRelationshipPatterns, buildReverseDirectionPatterns, findAreaConnectionsInText, findReverseDirectionConnections, detectPatternStrategy, deduplicateCompounds } from './compoundLocationHelpers.js'
+import { buildAreaRelationshipPatterns, buildReverseDirectionPatterns, 
+  findAreaConnectionsInText, findReverseDirectionConnections, 
+  detectPatternStrategy, deduplicateCompounds } from './compoundLocationHelpers.js'
 import {
   processSymptomsByArea,
   processAreaSymptomPairs,
@@ -860,6 +862,9 @@ export function findSymptomMatches(text) {
  * @param {string} text - Customer's input text
  * @returns {Array} - Array of pattern matches or ambiguous response
  */
+
+import { getContextAwareAmbiguousResponse } from './aiResponseAmbiguity.js'
+
 export function findPatterns(text) {
   // 1. Try contextual matching first (most accurate)
   const contextualMatches = findContextualMatches(text)
@@ -876,22 +881,8 @@ export function findPatterns(text) {
   }
 
   // 3. Handle ambiguous input - no clear patterns found
-  // Return a special ambiguous result instead of useless symptom-only matches
-  return [{
-    plumbingIssueLocId: null,
-    symptomId: null,
-    areaAlias: null,
-    symptomAlias: null,
-    context: 'ambiguous_input',
-    pattern: null,
-    method: 'ambiguous',
-    message: 'Input is too ambiguous. Please provide more specific information about the location and issue.',
-    suggestions: [
-      'Where is the issue occurring? (e.g., kitchen faucet, bathroom ceiling)',
-      'What specific problem are you experiencing? (e.g., leaking, bubbling, running)',
-      'Can you describe the affected fixture or area?'
-    ]
-  }]
+  // Return context-aware ambiguous response with intelligent suggestions
+  return getContextAwareAmbiguousResponse(text)
 }
 
 /**
