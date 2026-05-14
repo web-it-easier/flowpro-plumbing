@@ -26,12 +26,6 @@
 export const PLUMBING_ISSUE_ITEMS = [
   // FIXTURES - Specific plumbing fixtures that need fixing
   {
-    "locationId": "toilet",
-    "customerSearchTerms": ["toilet", "commode", "water closet", "john", "throne"],
-    "dispatchCategory": "fixture",
-    "technicalDescription": "Toilet fixture with tank, bowl, and flushing mechanism"
-  },
-  {
     "locationId": "toilet_tank",
     "customerSearchTerms": ["toilet tank", "tank", "flush tank", "cistern"],
     "dispatchCategory": "component",
@@ -84,6 +78,31 @@ export const PLUMBING_ISSUE_ITEMS = [
     "customerSearchTerms": ["aerator", "faucet aerator", "tap aerator", "screen"],
     "dispatchCategory": "component",
     "technicalDescription": "Mesh screen at faucet tip that mixes air with water"
+  },
+  // SINK COMPONENTS
+  {
+    "locationId": "sink_drain",
+    "customerSearchTerms": ["sink drain", "drain pipe", "P-trap", "sink trap", "drainage", "sink clogged"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Drain pipe and P-trap under sink carrying wastewater to main drain"
+  },
+  {
+    "locationId": "sink_supply_lines",
+    "customerSearchTerms": ["sink supply lines", "sink hoses", "faucet supply lines", "under sink lines", "flexible supply lines"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Hot and cold water supply lines connecting faucet to shutoff valves"
+  },
+  {
+    "locationId": "sink_shutoff_valves",
+    "customerSearchTerms": ["sink valves", "under sink valves", "shutoff valves", "sink shutoff", "angle stop", "supply stop"],
+    "dispatchCategory": "component",
+    "technicalDescription": "Hot and cold water shutoff valves under sink for emergency water shutoff"
+  },
+  {
+    "locationId": "sink_faucet",
+    "customerSearchTerms": ["sink faucet", "bathroom faucet", "kitchen faucet", "basin faucet", "tap"],
+    "dispatchCategory": "fixture",
+    "technicalDescription": "Faucet fixture mounted on sink for water delivery"
   },
     {
     "locationId": "shower_head",
