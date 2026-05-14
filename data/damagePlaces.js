@@ -49,10 +49,22 @@ export default [
     "description": "Master bedroom area where damage is visible (context location - plumber fixes fixtures inside)"
   },
   {
+    "id": "living_room",
+    "aliases": ["living room", "living room", "living area", "front room", "main room", "sitting room", "lounge"],
+    "category": "room",
+    "description": "Living room area where damage is visible (context location - plumber fixes fixtures inside)"
+  },
+  {
     "id": "upstairs",
     "aliases": ["upstairs", "second floor", "upper floor", "upstairs area", "top floor"],
     "category": "floor",
     "description": "Upstairs floor where damage is visible (context location)"
+  },
+  {
+    "id": "hidden_leak",
+    "aliases": ["expensive bill", "high water bill", "unusual water usage", "mystery water", "running water sound", "water bill high"],
+    "category": "diagnostic",
+    "description": "Diagnostic indicator of hidden leak (not a physical location)"
   },
   {
     "id": "downstairs",
@@ -80,6 +92,12 @@ export default [
   },
   // FIXTURES - Large fixtures where damage is visible (context locations)
   {
+    "id": "toilet",
+    "aliases": ["toilet", "commode", "water closet", "john", "throne", "wc"],
+    "category": "fixture",
+    "description": "Toilet fixture where damage/leaks are visible (plumber fixes tank components, bowl, or seal)"
+  },
+  {
     "id": "bathtub",
     "aliases": ["bathtub", "tub", "soaking tub"],
     "category": "fixture",
@@ -90,6 +108,12 @@ export default [
     "aliases": ["sink", "basin", "kitchen sink", "bathroom sink", "vanity sink", "wash basin"],
     "category": "fixture",
     "description": "Sink basin where damage/leaks are visible (plumber fixes faucet, drain, or supply lines)"
+  },
+  {
+    "id": "under_sink_cabinet",
+    "aliases": ["under sink cabinet", "under sink", "sink cabinet", "cabinet under sink", "cabinet under the sink", "vanity cabinet", "under vanity", "underneath", "wet underneath", "water under", "sink base", "vanity base"],
+    "category": "surface",
+    "description": "Cabinet or area under sink where water damage is visible"
   },
   {
     "id": "shower_stall",
