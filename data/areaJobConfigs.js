@@ -18,6 +18,15 @@ export default [
     }
   },
   {
+    "area": "toilet_tank",
+    "jobType": "bathroom_kitchen_fixtures",
+    "supportedSymptoms": ["leak", "running", "overflowing", "noise", "not_working", "fill_valve", "flapper"],
+    "severityOverrides": {
+      "overflowing": "immediate",
+      "leak": "same_day"
+    }
+  },
+  {
     "area": "faucet",
     "jobType": "bathroom_kitchen_fixtures",
     "supportedSymptoms": ["leak", "low_pressure", "high_pressure", "noise", "not_working", "discolored_water", "temperature_fluctuation"],
@@ -35,6 +44,15 @@ export default [
   },
   {
     "area": "shower",
+    "jobType": "bathroom_kitchen_fixtures",
+    "supportedSymptoms": ["leak", "low_pressure", "high_pressure", "temperature_fluctuation", "slow_drain", "clog", "noise", "not_working", "no_hot_water"],
+    "severityOverrides": {
+      "no_hot_water": "same_day",
+      "clog": "same_day"
+    }
+  },
+  {
+    "area": "shower_stall",
     "jobType": "bathroom_kitchen_fixtures",
     "supportedSymptoms": ["leak", "low_pressure", "high_pressure", "temperature_fluctuation", "slow_drain", "clog", "noise", "not_working", "no_hot_water"],
     "severityOverrides": {
@@ -164,10 +182,9 @@ export default [
   {
     "area": "water_meter",
     "jobType": "maintenance_inspection",
-    "supportedSymptoms": ["leak", "expensive_bill", "not_working"],
+    "supportedSymptoms": ["leak", "not_working", "broken_glass", "frozen"],
     "severityOverrides": {
-      "leak": "same_day",
-      "expensive_bill": "same_day"
+      "leak": "same_day"
     }
   },
   {
@@ -315,6 +332,26 @@ export default [
     "severityOverrides": {
       "leak": "same_day",
       "water_damage": "same_day"
+    }
+  },
+  {
+    "area": "living_room",
+    "jobType": "emergency_plumbing",
+    "supportedSymptoms": ["gas_smell", "gas_leak", "dizzy", "headache", "nausea"],
+    "severityOverrides": {
+      "gas_smell": "immediate",
+      "gas_leak": "immediate",
+      "dizzy": "immediate"
+    }
+  },
+  {
+    "area": "hidden_leak",
+    "jobType": "plumbing_repairs",
+    "supportedSymptoms": ["expensive_bill", "high_bill", "unusual_usage", "mystery_water", "sound_running"],
+    "severityOverrides": {
+      "expensive_bill": "same_day",
+      "high_bill": "same_day",
+      "mystery_water": "immediate"
     }
   },
   {
