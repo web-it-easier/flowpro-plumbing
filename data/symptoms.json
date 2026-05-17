@@ -1,0 +1,114 @@
+[
+  {
+    "id": "pouring",
+    "aliases": ["pouring", "pouring water", "water pouring", "gushing", "water gushing", "flooding", "water flooding"],
+    "category": "water_issue",
+    "severity": "immediate",
+    "description": "Active water pouring or gushing indicating major leak"
+  },
+  {
+    "id": "sagging",
+    "aliases": ["sagging", "sagging ceiling", "drooping", "bulging", "sagging wall", "bulging ceiling", "water damage"],
+    "category": "structural_issue",
+    "severity": "immediate",
+    "description": "Structural sagging or bulging from water damage"
+  },
+  {
+    "id": "noise",
+    "aliases": ["noise", "noisy", "strange noises", "weird noise", "loud", "banging", "gurgling", "hissing", "clanking", "knocking", "bubbling", "grinding"],
+    "category": "sound_issue",
+    "severity": "schedule",
+    "description": "Water draining slower than normal"
+  },
+  {
+    "id": "burst",
+    "aliases": ["burst", "burst pipe", "ruptured", "rupture", "broken pipe", "pipe burst", "exploded", "split"],
+    "category": "water_issue",
+    "severity": "immediate",
+    "description": "Pipe that has burst or ruptured causing major water damage"
+  },
+  {
+    "id": "frozen",
+    "aliases": ["frozen", "frozen pipes", "ice in pipes", "frozen line", "frozen water", "ice blockage"],
+    "category": "temperature_issue",
+    "severity": "immediate",
+    "description": "Pipes frozen preventing water flow"
+  },
+  {
+    "id": "discolored_water",
+    "aliases": ["discolored water", "rusty water", "brown water", "yellow water", "dirty water", "murky water", "rust colored"],
+    "category": "water_quality_issue",
+    "severity": "same_day",
+    "description": "Water that is discolored or contaminated looking"
+  },
+  {
+    "id": "high_pressure",
+    "aliases": ["high pressure", "too much pressure", "strong pressure", "excessive pressure", "forceful", "powerful"],
+    "category": "pressure_issue",
+    "severity": "schedule",
+    "description": "Water pressure that is too high"
+  },
+  {
+    "id": "temperature_fluctuation",
+    "aliases": ["temperature fluctuation", "hot and cold", "temperature changes", "inconsistent temperature", "varying temperature"],
+    "category": "temperature_issue",
+    "severity": "schedule",
+    "description": "Water temperature that fluctuates unpredictably"
+  },
+  {
+    "id": "vibration",
+    "aliases": ["vibration", "vibrating", "shaking", "rattling", "trembling", "water hammer"],
+    "category": "mechanical_issue",
+    "severity": "schedule",
+    "description": "Pipes or fixtures that vibrate or shake"
+  },
+  {
+    "id": "corrosion",
+    "aliases": ["corrosion", "rust", "corroded", "rusty", "oxidation", "deteriorated", "decayed"],
+    "category": "material_issue",
+    "severity": "same_day",
+    "description": "Metal components showing signs of corrosion or rust"
+  },
+  {
+    "id": "sediment",
+    "aliases": ["sediment", "buildup", "debris", "particles", "scale", "mineral buildup", "deposits"],
+    "category": "water_quality_issue",
+    "severity": "schedule",
+    "description": "Sediment or mineral buildup in water system"
+  },
+  {
+    "id": "no_water",
+    "aliases": ["no water", "no water flow", "dry", "no supply", "water stopped", "no water coming out"],
+    "category": "supply_issue",
+    "severity": "immediate",
+    "description": "Complete lack of water supply"
+  },
+  {
+    "id": "pilot_light",
+    "aliases": ["pilot light", "pilot", "pilot out", "pilot off", "extinguished pilot", "pilot won't stay lit"],
+    "category": "mechanical_issue",
+    "severity": "same_day",
+    "description": "Pilot light issues on gas appliances"
+  },
+  {
+    "id": "flapper",
+    "aliases": ["flapper", "flapper valve", "toilet flapper", "bad flapper", "flapper problem"],
+    "category": "mechanical_issue",
+    "severity": "schedule",
+    "description": "Toilet flapper valve issues"
+  },
+  {
+    "id": "fill_valve",
+    "aliases": ["fill valve", "ballcock", "toilet fill valve", "refill valve", "water valve"],
+    "category": "mechanical_issue",
+    "severity": "schedule",
+    "description": "Toilet fill valve or ballcock issues"
+  },
+  {
+    "id": "expensive_bill",
+    "aliases": ["expensive bill", "high water bill", "water bill high", "unusual bill", "expensive water", "high utility bill"],
+    "category": "cost_issue",
+    "severity": "same_day",
+    "description": "Unusually high water bill indicating hidden issues"
+  }
+]

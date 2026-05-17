@@ -1,510 +1,1104 @@
+<!-- TEST VERSION - Uses contextual matching to solve ambiguity -->
 <template>
   <div class="ai-test-container">
-    <!-- Animated Background -->
-    <div class="animated-bg"></div>
+    <h1>AI Test - Contextual Pattern Matching</h1>
+    <p class="subtitle">Testing bulletproof text recognition without ambiguity</p>
     
-    <!-- Main Content -->
-    <div class="container mx-auto px-4 py-8 relative z-10">
-      <!-- Compact Header -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center gap-3 mb-4">
-          <div class="ai-pulse"></div>
-          <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            FlowPro AI Test Lab
-          </h1>
-          <div class="ai-pulse"></div>
-        </div>
-        <p class="text-gray-600 max-w-2xl mx-auto">
-          Experience the intelligence behind our plumbing detection system
-        </p>
-      </div>
-
-      <!-- Compact Test Interface -->
-      <div class="max-w-4xl mx-auto">
-        <!-- Input Card -->
-        <div class="glass-card mb-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="icon-wrapper bg-gradient-to-r from-blue-500 to-purple-500">
-              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-            </div>
-            <div class="flex-1">
-              <h2 class="text-lg font-bold text-gray-800">Describe Your Plumbing Issue</h2>
-              <p class="text-xs text-gray-500">Type naturally, like you would talk to a plumber</p>
-            </div>
-          </div>
-          
-          <textarea
-            v-model="customerText"
-            @input="analyzeText"
-            placeholder="e.g., 'I smell gas in my living room and have a leaky faucet. Oh, and the pipe burst in the basement!'"
-            class="w-full h-32 p-4 bg-white/70 backdrop-blur border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none resize-none transition-all"
-          ></textarea>
-          
-          <div class="flex items-center justify-between mt-3">
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full" :class="customerText.length > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-300'"></div>
-              <span class="text-xs text-gray-600">{{ customerText.length }} characters</span>
-            </div>
-            <button
-              v-if="customerText"
-              @click="clearInput"
-              class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full transition"
-            >
-              Clear
-            </button>
-          </div>
-        </div>
-
-        <!-- Quick Examples - Horizontal Scroll -->
-        <div class="glass-card mb-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="icon-wrapper bg-gradient-to-r from-green-500 to-teal-500">
-              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-              </svg>
-            </div>
-            <h2 class="text-lg font-bold text-gray-800">Quick Test Scenarios</h2>
-          </div>
-          
-          <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide flex-wrap">
-            <button
-              v-for="(example, idx) in testExamples"
-              :key="idx"
-              @click="loadExample(example.text)"
-              class="h-full p-2 bg-white/80 backdrop-blur border-2 border-gray-200 hover:border-purple-500 hover:bg-purple-50 rounded-lg transition-colors hover:scale-105 min-w-[180px] max-w-[200px]"
-            >
-              <div class="flex items-center gap-1 mb-1">
-                <span class="text-sm">{{ example.icon }}</span>
-                <span class="font-semibold text-xs text-gray-800">{{ example.name }}</span>
-              </div>
-              <p class="text-xs text-gray-600">{{ example.text }}</p>
-            </button>
-          </div>
-        </div>
-
-        <!-- AI Results - Animated Entry -->
-        <transition name="slide-up" appear>
-          <div v-if="aiResult" class="glass-card">
-            <!-- Results Header -->
-            <div class="flex items-center justify-between mb-6">
-              <div class="flex items-center gap-3">
-                <div class="ai-pulse-lg"></div>
-                <h2 class="text-xl font-bold text-gray-800">AI Analysis Complete</h2>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-500">Confidence</span>
-                <div class="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    class="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
-                    :style="{ width: (aiResult.confidence * 100) + '%' }"
-                  ></div>
-                </div>
-                <span class="text-xs font-bold text-gray-700">{{ Math.round(aiResult.confidence * 100) }}%</span>
-              </div>
-            </div>
-
-            <!-- Issue Detected -->
-            <div v-if="aiResult.category" class="space-y-4">
-              <!-- Primary Issue Card -->
-              <div class="issue-card primary">
-                <div class="flex items-start gap-4">
-                  <div class="issue-icon bg-gradient-to-r from-red-500 to-orange-500">
-                    <span class="text-2xl">🚨</span>
-                  </div>
-                  <div class="flex-1">
-                    <h3 class="text-lg font-bold text-gray-800 mb-1">{{ getCategoryName(aiResult.category) }}</h3>
-                    <p class="text-sm text-gray-600 mb-3">{{ getCategoryDescription(aiResult.category) }}</p>
-                    <div class="flex items-center gap-3">
-                      <span class="text-xs px-3 py-1 bg-red-100 text-red-700 rounded-full font-semibold">
-                        PRIMARY ISSUE
-                      </span>
-                      <span class="text-xs text-gray-500">{{ aiResult.category }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Priority Badge -->
-              <div class="priority-display">
-                <div class="flex items-center gap-4">
-                  <span class="text-sm font-semibold text-gray-600">Priority Level:</span>
-                  <div :class="getPriorityBadgeClass(aiResult.category)" class="px-4 py-2 rounded-full text-white font-bold text-sm shadow-lg">
-                    {{ getPriorityLabel(aiResult.category) }}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- No Detection -->
-            <div v-else class="text-center py-8">
-              <div class="text-4xl mb-3">🤔</div>
-              <p class="text-gray-600">No specific plumbing issues detected</p>
-              <p class="text-sm text-gray-500 mt-2">Try providing more details about the problem</p>
-            </div>
-          </div>
-        </transition>
-
-        <!-- Debug Toggle -->
-        <div class="text-center mt-6">
-          <button
-            @click="showDebug = !showDebug"
-            class="text-xs px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full transition"
-          >
-            {{ showDebug ? 'Hide' : 'Show' }} Debug Info
+    <div class="test-section">
+      <div class="test-header">
+        <h2>Comprehensive Test Suite</h2>
+        <div class="test-controls">
+          <button @click="runAllTests" class="run-all-button">
+            🧪 Run All Tests
+          </button>
+          <button @click="clearAllTests" class="clear-button">
+            🗑️ Clear All
           </button>
         </div>
-
-        <!-- Debug Panel -->
-        <transition name="slide-down">
-          <div v-if="showDebug && aiResult" class="glass-card">
-            <h3 class="text-sm font-bold text-gray-700 mb-3">🔧 Debug: Raw AI Output</h3>
-            <pre class="text-xs bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">{{ JSON.stringify(aiResult, null, 2) }}</pre>
-          </div>
-        </transition>
       </div>
+      
+      <!-- Test Categories Filter -->
+      <div class="category-filter">
+        <button 
+          v-for="category in testCategories" 
+          :key="category"
+          @click="filterCategory = filterCategory === category ? null : category"
+          class="category-button"
+          :class="{ active: filterCategory === category }"
+        >
+          {{ category }} ({{ testCases.filter(t => t.category === category).length }})
+        </button>
+      </div>
+      
+      <div class="test-cases">
+        <div 
+          v-for="(testCase, index) in filteredTestCases" 
+          :key="index"
+          @click="runTest(testCase, index)"
+          class="test-button"
+          :class="{ 
+            active: currentTestIndex === index,
+            passed: testResults[index]?.passed,
+            failed: testResults[index]?.passed === false
+          }"
+        >
+          <div class="test-header-row">
+            <span class="test-title">{{ testCase.title }}</span>
+            <span class="test-method" :class="testCase.shouldUse">{{ testCase.shouldUse }}</span>
+          </div>
+          <div class="test-input">"{{ testCase.input }}"</div>
+          <div class="test-expected">Expected: {{ testCase.expected }}</div>
+          <div class="test-meta">
+            <span class="expected-count">Count: {{ testCase.expectedCount }}</span>
+            <span class="expected-priorities" v-if="testCase.priorities.length">
+              Priorities: {{ testCase.priorities.join(', ') }}
+            </span>
+          </div>
+          <div class="test-result" v-if="testResults[index]">
+            <span :class="{ success: testResults[index].passed, fail: !testResults[index].passed }">
+              {{ testResults[index].passed ? '✅ PASS' : '❌ FAIL' }}
+            </span>
+            <span class="actual-result">
+              Actual: {{ testResults[index].actualMethod }} ({{ testResults[index].actualCount }})
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-section">
+      <h3>Custom Input</h3>
+      <textarea 
+        v-model="currentInput"
+        @input="analyzeText"
+        placeholder="Type your plumbing issue here..."
+        class="input-textarea"
+      ></textarea>
+      
+      <button @click="analyzeText" class="analyze-button">
+        Analyze Text
+      </button>
+    </div>
+
+    <div class="results-section" v-if="results">
+      <h3>Results ({{ results.detectedBy || 'Standard' }} Method)</h3>
+      
+      <div class="summary">
+        <div class="summary-item">
+          <span class="label">Total Issues:</span>
+          <span class="value">{{ results.totalIssues }}</span>
+        </div>
+              </div>
+
+      <div class="issues-by-priority">
+  
+        <div v-for="(issues, priority) in results.groupedIssues" :key="priority" class="priority-group">
+          <h4 :class="priority.toLowerCase()">-> {{ priority }} ({{ issues.length }})</h4>
+          <!-- <div v-if="issues.length === 0" class="no-issues">No issues (:)</div> -->
+          <div class="issue-list">
+            <div v-for="issue in issues" :key="issue.id" class="issue-card">
+             
+              
+              <div class="issue-header">
+                <span class="issue-title">{{ issue.jobTypeTitle }}</span>
+                <span class="issue-confidence">{{ Math.round(issue.confidence * 100) }}%</span>
+              </div>
+              <div class="issue-details">
+                <div class="issue-description">
+                  <div class="area-badge">{{ issue.areaAlias }}</div>
+                  <div class="symptom-text">{{ issue.symptomAlias }}</div>
+                </div>
+                <div class="issue-meta">
+                  <span class="issue-severity">{{ issue.severity }}</span>
+                  <span class="issue-method">{{ issue.detectedBy }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Analysis Section -->
+    <div class="analysis-section" v-if="showAnalysis && testResults.length > 0">
+      <h3>Test Analysis Results</h3>
+      
+      <!-- Test Statistics -->
+      <div class="test-stats">
+        <div class="stat-card">
+          <div class="stat-value">{{ testStats.passedTests }}/{{ testStats.totalTests }}</div>
+          <div class="stat-label">Tests Passed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ testStats.contextualMatches }}</div>
+          <div class="stat-label">Contextual</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ testStats.fallbackMatches }}</div>
+          <div class="stat-label">Fallback</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ testStats.ambiguousMatches }}</div>
+          <div class="stat-label">Ambiguous</div>
+        </div>
+      </div>
+      
+      <!-- Failed Tests Details -->
+      <div class="failed-tests" v-if="testStats.failedTests > 0">
+        <h4>❌ Failed Tests ({{ testStats.failedTests }})</h4>
+        <div class="failed-test-list">
+          <div 
+            v-for="(result, index) in testResults.filter(r => !r.passed)" 
+            :key="index"
+            class="failed-test-item"
+          >
+            <div class="failed-title">{{ result.testCase.title }}</div>
+            <div class="failed-details">
+              Expected: {{ result.testCase.shouldUse }} ({{ result.testCase.expectedCount }})
+              → Actual: {{ result.actualMethod }} ({{ result.actualCount }})
+            </div>
+            <div class="failed-input">"{{ result.testCase.input }}"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="debug-section" v-if="debugInfo">
+      <div class="debug-header">
+        <h3>Debug Information</h3>
+        <button @click="copyDebugInfo" class="copy-button" title="Copy to clipboard">
+          <svg class="copy-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+          </svg>
+          {{ copySuccess ? 'Copied!' : 'Copy' }}
+        </button>
+      </div>
+      <pre class="debug-output">{{ JSON.stringify(debugInfo, null, 2) }}</pre>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { suggestJobType } from '~/utils/ai/aiBasicLearner.js'
+import { ref, computed } from 'vue'
+import { getAISuggestion, debugAISuggestion } from '../utils/ai/aiBasicLearner.js'
 
-const customerText = ref('')
-const aiResult = ref(null)
-const showDebug = ref(false)
+const currentInput = ref('')
+const results = ref(null)
+const debugInfo = ref(null)
+const testResults = ref([])
+const currentTestIndex = ref(-1)
+const showAnalysis = ref(false)
+const testStats = ref({
+  totalTests: 0,
+  passedTests: 0,
+  failedTests: 0,
+  contextualMatches: 0,
+  fallbackMatches: 0,
+  ambiguousMatches: 0
+})
 
-const testExamples = [
+const filterCategory = ref(null)
+const copySuccess = ref(false)
+
+const filteredTestCases = computed(() => {
+  if (!filterCategory.value) return testCases
+  return testCases.filter(t => t.category === filterCategory.value)
+})
+
+const testCases = [
+  // === CONTEXTUAL PATTERN TESTS (High Confidence) ===
   {
-    name: '🚨 Gas + Burst + Faucet',
-    text: 'I smell gas in my living room and have a leaky faucet. Oh, and the pipe burst in the basement!',
-    icon: '🚨'
+    category: "Contextual - Emergency",
+    title: "🚨 Gas + Burst + Ceiling",
+    input: "I smell gas in the kitchen, the ceiling is bubbling with paint, and the pipe burst in the basement!",
+    expected: "3 mixed matches: gas_smell + ceiling_bubbling + pipe_burst",
+    shouldUse: "mixed",
+    expectedCount: 3,
+    priorities: ["IMMEDIATE", "IMMEDIATE", "IMMEDIATE"]
   },
   {
-    name: '🚨 Double Emergency',
-    text: 'I smell gas in the kitchen and the main water pipe just burst in the garage! Water is flooding everywhere!',
-    icon: '🚨'
+    category: "Contextual - Emergency",
+    title: "🚨 Gas Leak + Water Flood",
+    input: "The gas line is leaking and the main water pipe burst, water is flooding everywhere!",
+    expected: "3 mixed matches: gas_leak + water_main_burst + flooding",
+    shouldUse: "mixed",
+    expectedCount: 3,
+    priorities: ["IMMEDIATE", "IMMEDIATE", "IMMEDIATE"]
   },
   {
-    name: '🚨 Gas + Frozen Pipes',
-    text: 'I smell gas near the furnace and my pipes are frozen. No water is coming out at all!',
-    icon: '🚨'
+    category: "Contextual - Mixed",
+    title: "💧 Ceiling Water Damage",
+    input: "Water is pouring through the ceiling from the upstairs bathroom, the ceiling is bubbling and sagging.",
+    expected: "1 contextual match: ceiling_bubbling (water damage)",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["IMMEDIATE"]
   },
   {
-    name: '💧 Burst Pipe Only',
-    text: 'A pipe burst in the basement and water is everywhere. I already shut off the main valve.',
-    icon: '💧'
+    category: "Compound - Area Relationships",
+    title: "🏠 Ceiling from Bathroom",
+    input: "Water is pouring through the ceiling from the upstairs bathroom",
+    expected: "1 contextual match with area relationship",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["IMMEDIATE"]
   },
   {
-    name: '💧 Water Damage Emergency',
-    text: 'Water is pouring through the ceiling from an upstairs bathroom. The ceiling is sagging!',
-    icon: '💧'
+    category: "Compound - Area Relationships", 
+    title: "🏠 Wall from Kitchen",
+    input: "The wall is wet from the kitchen sink leak",
+    expected: "1 contextual match with area relationship",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["SAME_DAY"]
   },
   {
-    name: '💧 Main Water Break',
-    text: 'The main water line broke outside my house. Water is flooding the yard and basement.',
-    icon: '�'
+    category: "Compound - Area Relationships",
+    title: "🏠 Floor from Laundry",
+    input: "Water damage on the floor from the washing machine in the laundry room",
+    expected: "1 contextual match with area relationship",
+    shouldUse: "contextual", 
+    expectedCount: 1,
+    priorities: ["SAME_DAY"]
   },
   {
-    name: '🔥 Water Heater Issue',
-    text: 'My water heater is not working and there is no hot water. I think it might be leaking.',
-    icon: '🔥'
+    category: "Compound - Area Relationships",
+    title: "🏠 Ceiling in Basement",
+    input: "The ceiling in the basement is leaking from the bathroom above",
+    expected: "1 contextual match with area relationship",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["SAME_DAY"]
   },
   {
-    name: '🔥 Water Heater Emergency',
-    text: 'My water heater exploded and hot water is flooding the garage. The pilot light went out too!',
-    icon: '🔥'
+    category: "Compound - Area Relationships",
+    title: "🏠 Garage at House",
+    input: "The garage at the house has water coming from the main line",
+    expected: "1 contextual match with area relationship",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["IMMEDIATE"]
+  },
+  
+  // // === FALLBACK PATTERN TESTS (Medium Confidence) ===
+  // {
+  //   category: "Fallback - Mixed",
+  //   title: "🔧 Water Heater Issues",
+  //   input: "My water heater is running continuously, the pipes are making noise, and I have no hot water.",
+  //   expected: "3 mixed matches: pipe_noise + water_heater(area-only) + no_hot_water",
+  //   shouldUse: "mixed",
+  //   expectedCount: 3,
+  //   priorities: ["SAME_DAY", "SCHEDULE", "SAME_DAY"]
+  // },
+  // {
+  //   category: "Fallback - Multiple",
+  //   title: "🚽 Bathroom Problems",
+  //   input: "The toilet is running, the bathroom faucet is leaking, and the drain is clogged.",
+  //   expected: "3 contextual matches: toilet_running + faucet_leak + drain_clog",
+  //   shouldUse: "contextual",
+  //   expectedCount: 3,
+  //   priorities: ["SCHEDULE", "SCHEDULE", "SAME_DAY"]
+  // },
+  // {
+  //   category: "Contextual - Emergency",
+  //   title: "💥 Burst + Flood Emergency",
+  //   input: "A pipe burst in the basement and water is flooding the garage.",
+  //   expected: "2 mixed matches: pipe_burst + flooding",
+  //   shouldUse: "mixed",
+  //   expectedCount: 2,
+  //   priorities: ["IMMEDIATE", "IMMEDIATE"]
+  // },
+  
+  // // === AMBIGUOUS INPUT TESTS ===
+  // {
+  //   category: "Ambiguous",
+  //   title: "🤔 Just Symptoms",
+  //   input: "bubbling running leaking dripping",
+  //   expected: "Fallback - symptoms only, no areas",
+  //   shouldUse: "fallback",
+  //   expectedCount: 4,
+  //   priorities: ["SAME_DAY", "SCHEDULE", "SAME_DAY", "SAME_DAY"]
+  // },
+  // {
+  //   category: "Ambiguous",
+  //   title: "🤔 Just Areas",
+  //   input: "toilet sink faucet pipes ceiling",
+  //   expected: "Fallback - areas only, no symptoms",
+  //   shouldUse: "fallback",
+  //   expectedCount: 5,
+  //   priorities: ["SCHEDULE", "SCHEDULE", "SCHEDULE", "SCHEDULE", "SCHEDULE"]
+  // },
+  // {
+  //   category: "Ambiguous",
+  //   title: "🤔 Unrelated Words",
+  //   input: "The cat is sleeping on the couch while watching TV.",
+  //   expected: "Ambiguous - no plumbing terms detected",
+  //   shouldUse: "ambiguous",
+  //   expectedCount: 0,
+  //   priorities: []
+  // },
+  
+  // // === EDGE CASE TESTS ===
+  // {
+  //   category: "Edge Cases",
+  //   title: "🔍 Single Word",
+  //   input: "leaking",
+  //   expected: "Fallback - single symptom only",
+  //   shouldUse: "fallback",
+  //   expectedCount: 1,
+  //   priorities: ["SAME_DAY"]
+  // },
+  // {
+  //   category: "Edge Cases",
+  //   title: "🔍 Empty Input",
+  //   input: "",
+  //   expected: "No input - should return null",
+  //   shouldUse: "none",
+  //   expectedCount: 0,
+  //   priorities: []
+  // },
+  // {
+  //   category: "Edge Cases",
+  //   title: "🔍 Typos",
+  //   input: "The faucett is leeking and the toylet is runing.",
+  //   expected: "Fallback - should find partial matches despite typos",
+  //   shouldUse: "fallback",
+  //   expectedCount: 2,
+  //   priorities: ["SCHEDULE", "SCHEDULE"]
+  // },
+  
+  // // === STRESS TESTS ===
+  // {
+  //   category: "Stress Tests",
+  //   title: "🌪️ Maximum Issues",
+  //   input: "I smell gas, the ceiling is bubbling, the toilet is running, the kitchen faucet is leaking, the bathroom sink is clogged, the water heater burst, the main pipe is frozen, the drain is backing up, and there's no water pressure.",
+  //   expected: "Multiple issues across all priorities",
+  //   shouldUse: "mixed",
+  //   expectedCount: 9,
+  //   priorities: ["IMMEDIATE", "IMMEDIATE", "SCHEDULE", "SCHEDULE", "SAME_DAY", "IMMEDIATE", "IMMEDIATE", "SAME_DAY", "SCHEDULE"]
+  // },
+  // {
+  //   category: "Stress Tests",
+  //   title: "🌪️ Repeated Words",
+  //   input: "Leaking leaking leaking faucet faucet faucet toilet toilet toilet running running running burst burst burst gas gas gas",
+  //   expected: "Should handle duplicates gracefully",
+  //   shouldUse: "fallback",
+  //   expectedCount: 3,
+  //   priorities: ["SCHEDULE", "SCHEDULE", "IMMEDIATE"]
+  // },
+  
+  // === PANIC DETECTION TESTS ===
+  {
+    category: "Panic Detection",
+    title: "😰 Panic - Repetition + Urgency",
+    input: "help help ceiling pouring water everywhere bathroom flooding please help now",
+    expected: "Merged incident with panic override to IMMEDIATE",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["IMMEDIATE"]
   },
   {
-    name: '🚰 Leaky Faucet Only',
-    text: 'My kitchen has a leaky faucet that keeps dripping all night.',
-    icon: '🚰'
+    category: "Panic Detection",
+    title: "😰 Panic - Emergency Keywords",
+    input: "emergency!!! water burst pipe flooding everywhere need help immediately",
+    expected: "Merged incident with panic override to IMMEDIATE",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["IMMEDIATE"]
   },
   {
-    name: '🚰 Multiple Fixtures',
-    text: 'Both my kitchen and bathroom faucets are leaking. Also the toilet keeps running.',
-    icon: '🚰'
+    category: "Panic Detection",
+    title: "😰 Panic - Can't Stop + Worse",
+    input: "can't stop water pouring getting worse ceiling wall floor all wet",
+    expected: "Merged incident with panic override to IMMEDIATE",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["IMMEDIATE"]
+  },
+  
+  // === INCIDENT MERGER TESTS ===
+  {
+    category: "Incident Merger",
+    title: "🧩 Multi-Area Multi-Symptom",
+    input: "ceiling pouring bathroom flooding wall wet floor damage everywhere",
+    expected: "1-2 merged incidents combining ceiling/wall/floor with sources",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["IMMEDIATE"]
   },
   {
-    name: '🚽 Sewer Backup',
-    text: 'Sewage is backing up into my shower and multiple drains are clogged. The smell is terrible!',
-    icon: '🚽'
+    category: "Incident Merger",
+    title: "🧩 Complex Incident with Source",
+    input: "Water is pouring through the ceiling from the upstairs bathroom, the wall is wet and the floor has puddles",
+    expected: "1 merged incident: ceiling from bathroom with pouring + wall wet + floor puddles",
+    shouldUse: "contextual",
+    expectedCount: 1,
+    priorities: ["IMMEDIATE"]
   },
   {
-    name: '🚽 Drain Emergency',
-    text: 'All drains in the house are backing up. Water is coming up through the shower and tub!',
-    icon: '🚽'
-  },
-  {
-    name: '🔄 Running Toilet',
-    text: 'My toilet keeps running and wont stop. I tried jiggling the handle but it still runs.',
-    icon: '🔄'
-  },
-  {
-    name: '🔄 Multiple Toilet Issues',
-    text: 'Both toilets in my house are running and wont stop flushing. Water is overflowing!',
-    icon: '🔄'
-  },
-  {
-    name: '🔍 Low Water Pressure',
-    text: 'I have very low water pressure in the whole house. Sometimes no water comes out at all.',
-    icon: '🔍'
-  },
-  {
-    name: '🔍 Multiple Issues',
-    text: 'My water pressure is low, the faucet is dripping, and the toilet makes strange noises.',
-    icon: '🔍'
+    category: "Incident Merger",
+    title: "🧩 No Panic - Should Stay Clarification",
+    input: "ceiling has some damage bathroom might be leaking",
+    expected: "Multiple area_only matches routed to clarification (no panic override)",
+    shouldUse: "fallback",
+    expectedCount: 2,
+    priorities: ["CLARIFICATION", "CLARIFICATION"]
   }
 ]
 
-const CATEGORY_INFO = {
-  gas_line_services: {
-    name: 'Gas Line Services',
-    description: 'Gas leak detected - this is a safety emergency',
-    priority: 'IMMEDIATE'
-  },
-  emergency_plumbing: {
-    name: 'Emergency Plumbing',
-    description: 'Burst pipe or major water emergency detected',
-    priority: 'IMMEDIATE'
-  },
-  water_heater_services: {
-    name: 'Water Heater Services',
-    description: 'Water heater issue detected',
-    priority: 'SAME_DAY'
-  },
-  drain_cleaning_sewer: {
-    name: 'Drain Cleaning & Sewer',
-    description: 'Clogged drain or sewer backup detected',
-    priority: 'SAME_DAY'
-  },
-  bathroom_kitchen_fixtures: {
-    name: 'Bathroom & Kitchen Fixtures',
-    description: 'Faucet or fixture repair needed',
-    priority: 'SCHEDULE'
-  },
-  plumbing_repairs: {
-    name: 'Plumbing Repairs',
-    description: 'General plumbing repair needed',
-    priority: 'SCHEDULE'
-  },
-  maintenance_inspection: {
-    name: 'Maintenance & Inspection',
-    description: 'Preventive maintenance or inspection recommended',
-    priority: 'SCHEDULE'
-  },
-  outdoor_drainage: {
-    name: 'Outdoor Drainage',
-    description: 'Outdoor drainage or grading issue',
-    priority: 'SCHEDULE'
-  }
-}
+// Test analysis functions
+const testCategories = computed(() => [...new Set(testCases.map(t => t.category))])
+const testMethods = computed(() => [...new Set(testCases.map(t => t.shouldUse))])
 
-const getCategoryName = (category) => {
-  return CATEGORY_INFO[category]?.name || category
-}
-
-const getCategoryDescription = (category) => {
-  return CATEGORY_INFO[category]?.description || 'Plumbing service needed'
-}
-
-const getPriorityLabel = (category) => {
-  return CATEGORY_INFO[category]?.priority || 'UNKNOWN'
-}
-
-const getPriorityBadgeClass = (category) => {
-  const priority = getPriorityLabel(category)
-  const classes = {
-    'IMMEDIATE': 'bg-gradient-to-r from-red-600 to-orange-600',
-    'SAME_DAY': 'bg-gradient-to-r from-amber-600 to-yellow-600',
-    'SCHEDULE': 'bg-gradient-to-r from-blue-600 to-indigo-600'
-  }
-  return classes[priority] || 'bg-gray-600'
-}
-
-const analyzeText = () => {
-  if (!customerText.value.trim()) {
-    aiResult.value = null
-    return
-  }
-  aiResult.value = suggestJobType(customerText.value)
-}
-
-const loadExample = (text) => {
-  customerText.value = text
+const runTest = (testCase, index) => {
+  currentInput.value = testCase.input
+  currentTestIndex.value = index
   analyzeText()
 }
 
-const clearInput = () => {
-  customerText.value = ''
-  aiResult.value = null
+const runAllTests = () => {
+  testResults.value = []
+  testStats.value = {
+    totalTests: testCases.length,
+    passedTests: 0,
+    failedTests: 0,
+    contextualMatches: 0,
+    fallbackMatches: 0,
+    ambiguousMatches: 0
+  }
+  
+  testCases.forEach((testCase, index) => {
+    const debugResult = debugAISuggestion(testCase.input)
+    const cleanResult = getAISuggestion(testCase.input)
+    
+    const testResult = {
+      testCase,
+      debugResult,
+      cleanResult,
+      passed: evaluateTest(testCase, cleanResult),
+      actualMethod: getDetectionMethod(cleanResult),
+      actualCount: cleanResult?.totalIssues || 0,
+      actualPriorities: getActualPriorities(cleanResult)
+    }
+    
+    testResults.value.push(testResult)
+    
+    // Update stats
+    if (testResult.passed) testStats.value.passedTests++
+    else testStats.value.failedTests++
+    
+    const method = testResult.actualMethod
+    if (method === 'contextual') testStats.value.contextualMatches++
+    else if (method === 'fallback') testStats.value.fallbackMatches++
+    else if (method === 'ambiguous') testStats.value.ambiguousMatches++
+  })
+  
+  showAnalysis.value = true
+}
+
+const evaluateTest = (testCase, result) => {
+  if (!result) return testCase.expectedCount === 0
+  
+  // Check if expected method matches actual method
+  if (testCase.shouldUse !== 'mixed' && testCase.shouldUse !== getDetectionMethod(result)) {
+    return false
+  }
+  
+  // Check if expected count matches actual count
+  if (testCase.expectedCount !== result.totalIssues) {
+    return false
+  }
+  
+  // Check priorities (if specified) - order-insensitive
+  if (testCase.priorities.length > 0) {
+    const actualPriorities = getActualPriorities(result)
+    const countMap = (arr) => arr.reduce((acc, p) => { acc[p] = (acc[p] || 0) + 1; return acc }, {})
+    const exp = countMap(testCase.priorities)
+    const act = countMap(actualPriorities)
+    const keys = new Set([...Object.keys(exp), ...Object.keys(act)])
+    for (const k of keys) {
+      if ((exp[k] || 0) !== (act[k] || 0)) return false
+    }
+    return true
+  }
+  
+  return true
+}
+
+const getDetectionMethod = (result) => {
+  if (!result || result.totalIssues === 0) return 'ambiguous'
+  const hasContextual = result.issues?.some(issue => issue.detectedBy === 'contextual')
+  const hasNonContextual = result.issues?.some(issue => issue.detectedBy !== 'contextual')
+  if (hasContextual && hasNonContextual) return 'mixed'
+  if (hasContextual) return 'contextual'
+  return 'fallback'
+}
+
+const getActualPriorities = (result) => {
+  if (!result || !result.groupedIssues) return []
+  
+  const priorities = []
+  Object.keys(result.groupedIssues).forEach(priority => {
+    result.groupedIssues[priority].forEach(() => {
+      priorities.push(priority)
+    })
+  })
+  return priorities
+}
+
+const clearAllTests = () => {
+  testResults.value = []
+  testStats.value = {
+    totalTests: 0,
+    passedTests: 0,
+    failedTests: 0,
+    contextualMatches: 0,
+    fallbackMatches: 0,
+    ambiguousMatches: 0
+  }
+  showAnalysis.value = false
+  currentTestIndex.value = -1
+  results.value = null
+  debugInfo.value = null
+  currentInput.value = ''
+}
+
+const copyDebugInfo = async () => {
+  try {
+    const debugText = JSON.stringify(debugInfo.value, null, 2)
+    await navigator.clipboard.writeText(debugText)
+    
+    // Show success feedback
+    copySuccess.value = true
+    setTimeout(() => {
+      copySuccess.value = false
+    }, 2000)
+  } catch (err) {
+    console.error('Failed to copy debug info:', err)
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea')
+    textArea.value = JSON.stringify(debugInfo.value, null, 2)
+    document.body.appendChild(textArea)
+    textArea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textArea)
+    
+    copySuccess.value = true
+    setTimeout(() => {
+      copySuccess.value = false
+    }, 2000)
+  }
+}
+
+const analyzeText = async () => {
+  if (!currentInput.value.trim()) {
+    results.value = null
+    return
+  }
+
+  // Get debug info first
+  debugInfo.value = debugAISuggestion(currentInput.value)
+  
+  // Get clean results - let errors bubble up naturally
+  results.value = getAISuggestion(currentInput.value)
 }
 </script>
 
 <style scoped>
 .ai-test-container {
-  min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
-/* Animated Background */
-.animated-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #fecfef 75%, #fecfef 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
-  z-index: 0;
+.subtitle {
+  color: #666;
+  font-style: italic;
+  margin-bottom: 30px;
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.test-section {
+  margin-bottom: 30px;
 }
 
-/* Glass Card Effect */
-.glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+.test-cases {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
-.glass-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+.test-button {
+  background: #f5f5f5;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-/* Icon Wrapper */
-.icon-wrapper {
-  width: 40px;
-  height: 40px;
+.test-button:hover {
+  background: #e9e9e9;
+  border-color: #999;
+}
+
+.test-button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.test-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.test-input {
+  font-style: italic;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.test-expected {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.input-section {
+  margin-bottom: 30px;
+}
+
+.input-textarea {
+  width: 100%;
+  height: 100px;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  resize: vertical;
+  margin-bottom: 15px;
+}
+
+.analyze-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.analyze-button:hover {
+  background: #218838;
+}
+
+.results-section {
+  background: #414040;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  h3 {
+    color: white;
+  }
+}
+
+.summary {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.summary-item {
+  display: flex;
+  gap: 10px;
+  color: white;
+ 
+}
+
+.label {
+  font-weight: bold;
+}
+
+.value {
+  color: white;
+  background: #6a6b6c;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.issues-by-priority {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  h3 {
+    color: white;
+  }
+}
+
+.priority-group h4 {
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  color: white;
+}
+
+.immediate { background: #dc3545; }
+.same-day { background: #ffc107; color: #333; }
+.schedule { background: #6c757d; }
+.clarification { background: #f59e0b; color: white; }
+
+.no-issues {
+  color: #666;
+  font-style: italic;
+}
+
+.issue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.issue-card {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid #007bff;
+}
+
+.issue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.issue-title {
+  font-weight: bold;
+}
+
+.issue-confidence {
+  background: #007bff;
+  color: white;
+  padding: 2px 8px;
   border-radius: 12px;
+  font-size: 0.8em;
+}
+
+.issue-details {
+  font-size: 0.9em;
+}
+
+.issue-description {
   display: flex;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  gap: 8px;
+  margin-bottom: 5px;
 }
 
-/* AI Pulse Animation */
-.ai-pulse {
-  width: 12px;
-  height: 12px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
+.area-badge {
+  background: #2563eb;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-.ai-pulse-lg {
+.symptom-text {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.issue-meta {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+}
+
+.issue-severity {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+.issue-method {
+  color: #666;
+  font-size: 0.8em;
+}
+
+.debug-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.debug-header h3 {
+  margin: 0;
+}
+
+.copy-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.3s;
+}
+
+.copy-button:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.copy-button:active {
+  transform: translateY(0);
+}
+
+.copy-icon {
   width: 16px;
   height: 16px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.7; }
+.debug-output {
+  background: #f1f1f1;
+  padding: 15px;
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.9em;
+  line-height: 1.4;
 }
 
-/* Issue Card */
-.issue-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-.issue-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+/* New Test Suite Styles */
+.test-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
 }
 
-/* Priority Display */
-.priority-display {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+.test-controls {
+  display: flex;
+  gap: 10px;
 }
 
-/* Scrollbar Hide */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.run-all-button {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+.run-all-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
-/* Line Clamp */
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  line-clamp: 1;
-  overflow: hidden;
+.clear-button {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-clamp: 2;
-  overflow: hidden;
+.clear-button:hover {
+  background: #5a6268;
 }
 
-/* Transitions */
-.slide-up-enter-active {
-  transition: all 0.5s ease-out;
+.category-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.slide-up-enter-from {
-  opacity: 0;
-  transform: translateY(30px);
+.category-button {
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9em;
 }
 
-.slide-down-enter-active {
-  transition: all 0.3s ease-out;
+.category-button:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
 }
 
-.slide-down-enter-from {
-  opacity: 0;
-  transform: translateY(-20px);
+.category-button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .ai-test-container {
-    padding: 1rem 0;
-  }
-  
-  .glass-card {
-    padding: 16px;
-  }
-  
-  .icon-wrapper {
-    width: 32px;
-    height: 32px;
-  }
+.test-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.test-method {
+  font-size: 0.8em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.test-method.contextual {
+  background: #28a745;
+  color: white;
+}
+
+.test-method.fallback {
+  background: #ffc107;
+  color: #333;
+}
+
+.test-method.ambiguous {
+  background: #6c757d;
+  color: white;
+}
+
+.test-method.mixed {
+  background: #17a2b8;
+  color: white;
+}
+
+.test-meta {
+  display: flex;
+  gap: 15px;
+  margin-top: 8px;
+  font-size: 0.8em;
+  color: #666;
+}
+
+.test-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.test-result .success {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.test-result .fail {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.actual-result {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.test-button.passed {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.test-button.failed {
+  border-color: #dc3545;
+  background: #fff8f8;
+}
+
+/* Analysis Section */
+.analysis-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.test-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  border-left: 4px solid #007bff;
+}
+
+.stat-value {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.stat-label {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 5px;
+}
+
+.failed-tests {
+  margin-top: 20px;
+}
+
+.failed-test-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.failed-test-item {
+  background: #fff8f8;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.failed-title {
+  font-weight: bold;
+  color: #dc3545;
+  margin-bottom: 5px;
+}
+
+.failed-details {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.failed-input {
+  font-style: italic;
+  color: #999;
+  font-size: 0.8em;
 }
 </style>

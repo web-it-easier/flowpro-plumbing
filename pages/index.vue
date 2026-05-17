@@ -1,4 +1,7 @@
 <template>
+  <!-- Navbar -->
+  <NavbarSection />
+  
   <!-- Main Content-->
   <main id="main-content" class="w-full" tabindex="-1">
     <!-- Hero Section - Full Width -->
@@ -63,6 +66,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import NavbarSection from '~/components/common/NavbarSection.vue'
+import HeroSection from '~/components/customer/HeroSection.vue'
+import ServicesSection from '~/components/customer/ServicesSection.vue'
+import AboutSection from '~/components/customer/AboutSection.vue'
+import EmergencySection from '~/components/customer/EmergencySection.vue'
+import ContactSection from '~/components/customer/ContactSection.vue'
+import GetQuoteSection from '~/components/customer/GetQuoteSection.vue'
 
 const currentMessage = computed(() => {
   // Get current hour once - no need for updates

@@ -144,14 +144,53 @@
         </label>
       </div>
 
-      <!-- Selected plumbers summary -->
-      <div v-if="selectedPlumbers.length > 0" class="mt-3 sm:mt-4 p-2 sm:p-3 bg-green-100 rounded-lg">
-        <p class="text-xs sm:text-sm text-green-800">
-          <strong>{{ selectedPlumbers.length }}</strong> plumber{{ selectedPlumbers.length > 1 ? 's' : '' }} selected
-        </p>
-        <p class="text-xs text-green-600 mt-1">
-          Total: ${{ totalCost.toLocaleString() }} ({{ selectedDateRange.length }} days)
-        </p>
+      <!-- Team size recommendation - now handles multiple job types -->
+      <div v-if="selectedJobTypes.length > 0" class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+        <div class="flex items-center mb-2">
+          <span class="text-lg mr-2"> team</span>
+          <div>
+            <p class="font-medium text-blue-900">Recommended Team Size</p>
+            <p class="text-sm text-blue-700">{{ getTotalTeamSize(selectedJobTypes) }} plumbers for {{ selectedJobTypes.length }} job{{ selectedJobTypes.length > 1 ? 's' : '' }}</p>
+          </div>
+        </div>
+        <div class="text-xs text-blue-600">
+          <p>Industry standard: {{ getCombinedJobDescription(selectedJobTypes) }}</p>
+        </div>
+        <div v-if="selectedJobTypes.length > 1" class="mt-2 pt-2 border-t border-blue-200">
+          <p class="text-xs text-blue-600 font-medium">Selected jobs:</p>
+          <ul class="text-xs text-blue-600 mt-1">
+            <li v-for="jobType in selectedJobTypes" :key="jobType.id">
+              {{ jobType.name }}: {{ getSingleJobTeamSize(jobType) }} plumber{{ getSingleJobTeamSize(jobType) > 1 ? 's' : '' }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Selected plumbers summary with validation -->
+      <div v-if="selectedPlumbers.length > 0" class="mt-3 sm:mt-4 p-2 sm:p-3 rounded-lg" :class="teamValidationClass">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs sm:text-sm font-medium" :class="teamValidationTextColor">
+              <strong>{{ selectedPlumbers.length }}</strong> plumber{{ selectedPlumbers.length > 1 ? 's' : '' }} selected
+              <span v-if="teamValidationMessage" class="ml-2">({{ teamValidationMessage }})</span>
+            </p>
+            <p class="text-xs mt-1" :class="teamValidationSubTextColor">
+              Team Rate: ${{ teamHourlyRate }}/hr
+            </p>
+            <p class="text-xs mt-1" :class="teamValidationSubTextColor">
+              Estimated Job Cost: ${{ estimatedJobCost.toLocaleString() }}
+              <span class="text-gray-500">({{ getCombinedDuration(selectedJobTypes) }})</span>
+            </p>
+            <div v-if="selectedDateRange.length > 0" class="text-xs mt-1" :class="teamValidationSubTextColor">
+              Total for {{ selectedDateRange.length }} day{{ selectedDateRange.length > 1 ? 's' : '' }}: ${{ totalCost.toLocaleString() }}
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-bold" :class="teamValidationTextColor">
+              {{ getTeamEmoji() }}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -242,7 +281,21 @@
 </template>
 
 <script setup>
+import CalendarGrid from './CalendarGrid.vue'
+import CalendarLegend from './CalendarLegend.vue'
 import { chatPromptSubmit } from '#build/ui'
+import JOB_TYPES from '../../data/jobTypes.json'
+import { 
+  getSingleJobTeamSize, 
+  getTotalTeamSize, 
+  getEstimatedDuration, 
+  getJobTypeDescription,
+  getCombinedJobDescription,
+  getCombinedDuration,
+  parseDurationToHours,
+  calculateEstimatedJobCost,
+  getTeamEmoji
+} from '../../utils/teamCalculations.js'
 
 // Component Interface
 const props = defineProps({
@@ -297,7 +350,7 @@ const selectedJobTypes = ref([]) // Track selected job types (array for multiple
 const plumberViewMode = ref('all') // View modes: 'jobTypes', 'all', 'all-by-availability', 'available', 'unavailable'
 
 // Multi-Resource Booking State
-import { PLUMBERS } from '~/constants/plumbers'
+import PLUMBERS from '~/data/plumbers.json'
 
 const plumbers = ref(PLUMBERS)
 const availabilityStatuses = {
@@ -568,7 +621,7 @@ const canFormRequiredTeam = computed(() => {
   if (selectedJobTypes.value.length === 0) return true
 
   const availableCount = plumbersMatchingJobRequirements.value.length
-  const maxTeamSize = Math.max(...selectedJobTypes.value.map(jt => jt.requiredTeamSize))
+  const maxTeamSize = getTotalTeamSize(selectedJobTypes.value)
 
   return availableCount >= maxTeamSize
 })
@@ -593,10 +646,15 @@ const totalCost = computed(() => {
   return days * dailyRate
 })
 
-// Can proceed with booking - check availability
+// Can proceed with booking - check availability AND team validation
 const canAddBooking = computed(() => {
 // Basic requirements
   if (selectedDateRange.value.length === 0 || selectedPlumbers.value.length === 0) {
+    return false
+  }
+
+// Check team validation first (job type requirements)
+  if (!teamValidation.value.isValid) {
     return false
   }
 
@@ -831,6 +889,111 @@ const formatDateRange = (dates) => {
 
   return `${start} - ${end} (${dates.length} days)`
 }
+
+// Team Assignment Functions (Industry Standard Implementation)
+// All team calculation utilities are now imported from ../utils/teamCalculations.js
+
+// Calculate team hourly rate
+const teamHourlyRate = computed(() => {
+  if (selectedPlumbers.value.length === 0) return 0
+  
+  const selectedPlumberDetails = plumbers.value.filter(plumber => 
+    selectedPlumbers.value.includes(plumber.id)
+  )
+  
+  return selectedPlumberDetails.reduce((total, plumber) => total + plumber.rate, 0)
+})
+
+// Calculate estimated job cost (team rate × estimated hours) - now handles multiple job types
+const estimatedJobCost = computed(() => {
+  return calculateEstimatedJobCost(selectedJobTypes.value, teamHourlyRate.value)
+})
+
+// parseDurationToHours is now imported from utils/teamCalculations.js
+
+// Team validation logic - now handles multiple job types
+const teamValidation = computed(() => {
+  if (!selectedJobTypes.value || selectedJobTypes.value.length === 0) {
+    return {
+      isValid: true,
+      message: 'No job type selected',
+      type: 'neutral'
+    }
+  }
+  
+  if (selectedPlumbers.value.length === 0) {
+    return {
+      isValid: false,
+      message: 'Select plumbers for these jobs',
+      type: 'warning'
+    }
+  }
+  
+  const requiredSize = getTotalTeamSize(selectedJobTypes.value)
+  const actualSize = selectedPlumbers.value.length
+  
+  if (actualSize < requiredSize) {
+    return {
+      isValid: false,
+      message: `Need ${requiredSize - actualSize} more plumber${requiredSize - actualSize > 1 ? 's' : ''} for these jobs`,
+      type: 'error'
+    }
+  }
+  
+  if (actualSize > requiredSize) {
+    return {
+      isValid: true,
+      message: `${actualSize - requiredSize} extra plumber${actualSize - requiredSize > 1 ? 's' : ''}`,
+      type: 'warning'
+    }
+  }
+  
+  return {
+    isValid: true,
+    message: 'Perfect team for these jobs!',
+    type: 'success'
+  }
+})
+
+// Computed properties for validation display
+const teamValidationMessage = computed(() => teamValidation.value.message)
+const teamValidationClass = computed(() => {
+  const type = teamValidation.value.type
+  return {
+    'bg-green-100 border-green-300': type === 'success',
+    'bg-yellow-100 border-yellow-300': type === 'warning',
+    'bg-red-100 border-red-300': type === 'error',
+    'bg-gray-100 border-gray-300': type === 'neutral'
+  }
+})
+const teamValidationTextColor = computed(() => {
+  const type = teamValidation.value.type
+  return {
+    'text-green-800': type === 'success',
+    'text-yellow-800': type === 'warning',
+    'text-red-800': type === 'error',
+    'text-gray-800': type === 'neutral'
+  }
+})
+const teamValidationSubTextColor = computed(() => {
+  const type = teamValidation.value.type
+  return {
+    'text-green-600': type === 'success',
+    'text-yellow-600': type === 'warning',
+    'text-red-600': type === 'error',
+    'text-gray-600': type === 'neutral'
+  }
+})
+
+// getTeamEmoji is now imported from utils/teamCalculations.js
+
+// Get selected job type (helper) - now handles multiple job types
+const selectedJobType = computed(() => {
+  return selectedJobTypes.value.length > 0 ? selectedJobTypes.value[0] : null
+})
+
+// All team calculation utilities are now imported from ../utils/teamCalculations.js
+
 
 // Template and Methods (TODO sections removed)
 </script>

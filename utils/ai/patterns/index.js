@@ -1,14 +1,15 @@
 // 🎯 AI Pattern Buckets - Central Export for All Pattern Types
 // This makes it easy to import all patterns at once or individually
 
+import { SPECIFIC_PHRASES } from './specificPhrases.js'
+import { REGEX_PATTERNS } from './regexPatterns.js'
+import { GENERAL_KEYWORDS } from './generalKeywords.js'
+
 export { SPECIFIC_PHRASES } from './specificPhrases.js'
 export { REGEX_PATTERNS } from './regexPatterns.js'
 export { GENERAL_KEYWORDS } from './generalKeywords.js'
 
 // 🎯 All patterns in one object (for convenience)
-import { SPECIFIC_PHRASES } from './specificPhrases.js'
-import { REGEX_PATTERNS } from './regexPatterns.js'
-import { GENERAL_KEYWORDS } from './generalKeywords.js'
 
 export const ALL_PATTERNS = {
   SPECIFIC_PHRASES,

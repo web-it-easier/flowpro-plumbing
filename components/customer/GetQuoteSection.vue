@@ -174,6 +174,9 @@
 </template>
 
 <script setup>
+import BaseButton from '~/components/common/BaseButton.vue'
+import BaseInput from '~/components/common/BaseInput.vue'
+
 /**
  * GetQuoteSection - Dedicated quote request section
  * 

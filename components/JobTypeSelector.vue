@@ -67,7 +67,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { JOB_TYPES } from '~/constants/jobTypes'
+import JOB_TYPES from '~/data/jobTypes.json'
 
 // 🎯 No props needed - component manages its own data
 // 🎯 Emit event when job type is selected

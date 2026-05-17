@@ -5,7 +5,7 @@
  * for different plumbing categories and specific issues.
  */
 
-export const getEducationalDescription = (category, signals = {}) => {
+export const getEducationalDescription = (category) => {
   // Rules table: ordered by specificity
   const rules = [
     {

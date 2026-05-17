@@ -40,8 +40,19 @@
 
           <!-- Desktop Navigation -->
           <div class="hidden md:flex items-center gap-10">
-            <NuxtLink to="/calendar">test</NuxtLink> 
-            <NuxtLink to="/ai-test"> ai test </NuxtLink>
+            <NuxtLink to="/ai-test" 
+              class="nav-link relative text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md"
+              :class="[
+                $route.path === '/ai-test'
+                  ? 'text-orange-300 scale-105'
+                  : 'text-white hover:text-orange-200'
+              ]">
+              <span class="relative">
+                AI Test (Contextual)
+                <span v-if="$route.path === '/ai-test'"
+                  class="absolute -top-3 -right-5 text-lg animate-bounce"></span>
+              </span>
+            </NuxtLink>
             <NuxtLink to="#services" :class="[
               'nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('services')
@@ -77,6 +88,51 @@
                   class="absolute -top-3 -right-5 text-lg animate-spin">🚨</span>
               </span>
             </NuxtLink>
+            
+            <!-- Admin Tools Dropdown -->
+            <div class="relative">
+              <button 
+                @click="toggleAdminDropdown"
+                class="nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md text-white hover:text-orange-200 flex items-center gap-2"
+                aria-haspopup="true"
+                :aria-expanded="isAdminDropdownOpen">
+                Admin Tools
+                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': isAdminDropdownOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+              
+              <!-- Dropdown Menu -->
+              <Transition name="fade">
+                <div v-if="isAdminDropdownOpen" class="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden z-50">
+                  <NuxtLink 
+                    to="/admin" 
+                    @click="isAdminDropdownOpen = false"
+                    class="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    🏢 Admin Dashboard
+                  </NuxtLink>
+                  <NuxtLink 
+                    to="/admin/calendar" 
+                    @click="isAdminDropdownOpen = false"
+                    class="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    📅 Admin Calendar
+                  </NuxtLink>
+                  <NuxtLink 
+                    to="/dispatch" 
+                    @click="isAdminDropdownOpen = false"
+                    class="block px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors">
+                    👨‍💼 Dispatcher Tools
+                  </NuxtLink>
+                  <NuxtLink 
+                    to="/component-showcase" 
+                    @click="isAdminDropdownOpen = false"
+                    class="block px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                    🎨 Component Showcase
+                  </NuxtLink>
+                </div>
+              </Transition>
+            </div>
+            
             <NuxtLink to="#contact" :class="[
               'nav-link relative pl-6 text-lg font-semibold transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none rounded-md',
               isSectionActive('contact')
@@ -170,6 +226,36 @@
                   class="absolute -top-3 -right-5 text-lg animate-bounce transition-transform duration-300">📞</span>
               </span>
             </NuxtLink>
+            
+            <!-- Admin Tools Section in Mobile Menu -->
+            <div class="border-t border-flowpro-dark/20 pt-4 mt-4">
+              <p class="text-white/60 text-sm font-semibold mb-3 pl-6">🔧 Admin Tools</p>
+              <NuxtLink 
+                to="/admin" 
+                class="block pl-6 py-3 text-white hover:bg-blue-500/20 hover:text-blue-200 transition-colors rounded-md"
+                @click="closeMobileMenu">
+                🏢 Admin Dashboard
+              </NuxtLink>
+              <NuxtLink 
+                to="/admin/calendar" 
+                class="block pl-6 py-3 text-white hover:bg-blue-500/20 hover:text-blue-200 transition-colors rounded-md"
+                @click="closeMobileMenu">
+                📅 Admin Calendar
+              </NuxtLink>
+              <NuxtLink 
+                to="/dispatch" 
+                class="block pl-6 py-3 text-white hover:bg-green-500/20 hover:text-green-200 transition-colors rounded-md"
+                @click="closeMobileMenu">
+                👨‍💼 Dispatcher Tools
+              </NuxtLink>
+              <NuxtLink 
+                to="/component-showcase" 
+                class="block pl-6 py-3 text-white hover:bg-purple-500/20 hover:text-purple-200 transition-colors rounded-md"
+                @click="closeMobileMenu">
+                🎨 Component Showcase
+              </NuxtLink>
+            </div>
+            
             <NuxtLink to="#get-quote" :class="[
               'relative overflow-hidden block rounded-2xl px-8 py-4 font-black shadow-lg text-center transition-[transform,box-shadow,color] duration-300 focus-visible:ring-4 focus-visible:ring-green-300 focus-visible:ring-offset-2 focus-visible:ring-offset-flowpro focus-visible:outline-none min-h-[44px]',
               isSectionActive('get-quote')
@@ -209,6 +295,9 @@ import { useActiveSection } from '~/composables/useActiveSection'
 // Mobile menu state
 const isMobileMenuOpen = ref(false)
 
+// Admin dropdown state
+const isAdminDropdownOpen = ref(false)
+
 // Active section detection
 const { isSectionActive, observeSection } = useActiveSection()
 
@@ -219,6 +308,11 @@ const toggleMobileMenu = () => {
 
 const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
+}
+
+// Admin dropdown functions
+const toggleAdminDropdown = () => {
+  isAdminDropdownOpen.value = !isAdminDropdownOpen.value
 }
 
 // Close mobile menu on escape key
@@ -258,6 +352,24 @@ onUnmounted(() => {
 <style scoped>
 /* Component-specific styles */
 /* All styling is handled by Tailwind classes and props */
+
+/* Dropdown transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 @scope {
 

@@ -27,6 +27,8 @@
 </template>
 
 <script setup>
+import BaseButton from '~/components/common/BaseButton.vue'
+
 /**
  * ComponentShowcaseSection - Component library showcase section
  * 
