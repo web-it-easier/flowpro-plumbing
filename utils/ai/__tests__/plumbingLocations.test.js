@@ -190,11 +190,15 @@ describe('Plumbing Issue Locations - All Work Areas', () => {
         expect(result).toBeDefined()
         expect(result.length).toBeGreaterThan(0)
         
-        // Accept either room or fixture detection
-        const sinkLocations = ['sink', 'basin', 'vanity', 'kitchen', 'bathroom']
-        const detected = result.find(r => sinkLocations.includes(r.plumbingIssueLocId))
+        // Require actual sink fixture detection, not just the room it's in
+        const sinkFixtureIds = ['sink', 'basin', 'vanity']
+        const detected = result.find(r => sinkFixtureIds.includes(r.plumbingIssueLocId))
         expect(detected).toBeDefined()
-        console.log(`✅ Sink detected: "${input}" (as ${detected.plumbingIssueLocId})`)
+
+        // Semantic check: sink fixture must have dispatchCategory 'fixture'
+        expect(detected.dispatchCategory).toBe('fixture')
+
+        console.log(`✅ Sink detected: "${input}" (as ${detected.plumbingIssueLocId}, ${detected.dispatchCategory})`)
       })
     })
 
@@ -413,7 +417,11 @@ describe('Plumbing Issue Locations - All Work Areas', () => {
         const drainLocations = ['drain']
         const detected = result.find(r => drainLocations.includes(r.plumbingIssueLocId))
         expect(detected).toBeDefined()
-        console.log(`✅ Drain detected: "${input}" (as ${detected.plumbingIssueLocId})`)
+
+        // Semantic check: drain should be treated as a component (work item), not a room
+        expect(detected.dispatchCategory).toBe('component')
+
+        console.log(`✅ Drain detected: "${input}" (as ${detected.plumbingIssueLocId}, ${detected.dispatchCategory})`)
       })
     })
 

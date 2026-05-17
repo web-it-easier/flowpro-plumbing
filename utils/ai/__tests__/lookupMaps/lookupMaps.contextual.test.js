@@ -36,12 +36,21 @@ describe('findContextualMatches - Unit Tests', () => {
       const result = findContextualMatches(input)
       
       expect(result).toBeDefined()
-      expect(result.length).toBeGreaterThan(0)
+      expect(result.length).toBeGreaterThanOrEqual(2)
       
       // Both toilet and faucet should be detected from separate clauses
       const foundLocations = result.map(r => r.plumbingIssueLocId)
       expect(foundLocations).toContain('toilet')
       expect(foundLocations).toContain('faucet')
+      
+      // Faucet should have contextual match with leak symptom
+      const faucetMatch = result.find(r => r.plumbingIssueLocId === 'faucet')
+      expect(faucetMatch.method).toBe('contextual')
+      expect(faucetMatch.symptomId).toBe('leak')
+      
+      // Toilet: "won't flush" may not match a symptom, so area_only is acceptable
+      const toiletMatch = result.find(r => r.plumbingIssueLocId === 'toilet')
+      expect(toiletMatch).toBeDefined()
     })
 
     test('should handle single clause with no delimiters', () => {
@@ -50,11 +59,18 @@ describe('findContextualMatches - Unit Tests', () => {
       const result = findContextualMatches(input)
       
       expect(result).toBeDefined()
-      expect(result.length).toBeGreaterThan(0)
+      expect(result.length).toBeGreaterThanOrEqual(1)
       
-      // Single clause should still find faucet + leak
-      const foundLocations = result.map(r => r.plumbingIssueLocId)
-      expect(foundLocations).toContain('faucet')
+      // Should find kitchen or sink/faucet with leak symptom
+      const faucetMatch = result.find(r => r.plumbingIssueLocId === 'faucet')
+      const kitchenMatch = result.find(r => r.plumbingIssueLocId === 'kitchen')
+      const sinkFaucetMatch = result.find(r => r.plumbingIssueLocId === 'sink_faucet')
+      const hasMatch = faucetMatch || kitchenMatch || sinkFaucetMatch
+      expect(hasMatch).toBeDefined()
+      
+      // At least one result should have the leak symptom
+      const leakMatch = result.find(r => r.symptomId === 'leak')
+      expect(leakMatch).toBeDefined()
     })
 
     test('should handle desperate panicked input with jumbled words', () => {
@@ -62,19 +78,20 @@ describe('findContextualMatches - Unit Tests', () => {
       const input = "leaking help ceiling pip burst"
       const result = findContextualMatches(input)
       
-      // Should still find something despite chaos
       expect(result).toBeDefined()
+      expect(result.length).toBeGreaterThanOrEqual(2)
       
-      // At minimum, should detect some locations or symptoms
-      if (result.length > 0) {
-        const foundLocations = result.map(r => r.plumbingIssueLocId)
-        const foundSymptoms = result.map(r => r.symptomId)
-        
-        // Should detect ceiling (location)
-        expect(foundLocations.some(loc => loc === 'ceiling')).toBe(true)
-        // Should detect burst (symptom)
-        expect(foundSymptoms.some(sym => sym === 'burst')).toBe(true)
-      }
+      // Ceiling should have contextual match with leak symptom
+      const ceilingMatch = result.find(r => r.plumbingIssueLocId === 'ceiling')
+      expect(ceilingMatch).toBeDefined()
+      expect(ceilingMatch.method).toBe('contextual')
+      expect(ceilingMatch.symptomId).toBe('leak')
+      
+      // Burst should be symptom_only (no location matched)
+      const burstMatch = result.find(r => r.symptomId === 'burst')
+      expect(burstMatch).toBeDefined()
+      expect(burstMatch.method).toBe('symptom_only')
+      expect(burstMatch.plumbingIssueLocId).toBeNull()
     })
 
     test('should handle multiple issues in panicked message', () => {
@@ -85,17 +102,24 @@ describe('findContextualMatches - Unit Tests', () => {
       expect(result).toBeDefined()
       expect(result.length).toBeGreaterThanOrEqual(2)
       
-      // Should detect BOTH toilet AND sink, not just one
+      // Should detect BOTH toilet AND sink
       const foundLocations = result.map(r => r.plumbingIssueLocId)
       expect(foundLocations).toContain('toilet')
       expect(foundLocations).toContain('sink')
       
-      // Should match correct symptoms to each location
-      const toiletMatch = result.find(r => r.plumbingIssueLocId === 'toilet')
-      const sinkMatch = result.find(r => r.plumbingIssueLocId === 'sink')
+      // Should have toilet+overflowing; sink may match overflowing or clog
+      const toiletOverflowing = result.find(
+        r => r.plumbingIssueLocId === 'toilet' && r.symptomId === 'overflowing'
+      )
+      expect(toiletOverflowing).toBeDefined()
+      expect(toiletOverflowing.method).toBe('contextual')
       
-      expect(toiletMatch).toBeDefined()
-      expect(sinkMatch).toBeDefined()
+      // Sink symptom may be 'overflowing' (from 'water everywhere') or 'clog'
+      const sinkAnySymptom = result.find(
+        r => r.plumbingIssueLocId === 'sink' && (r.symptomId === 'clog' || r.symptomId === 'overflowing')
+      )
+      expect(sinkAnySymptom).toBeDefined()
+      expect(sinkAnySymptom.method).toBe('contextual')
     })
 
     test('should handle very vague panic words only', () => {
@@ -105,15 +129,13 @@ describe('findContextualMatches - Unit Tests', () => {
       
       // Should always return an array, never undefined/null
       expect(Array.isArray(result)).toBe(true)
+      expect(result.length).toBeGreaterThanOrEqual(1)
       
-      // If results exist, they should have valid structure
-      if (result.length > 0) {
-        result.forEach(match => {
-          expect(match).toHaveProperty('plumbingIssueLocId')
-          expect(match).toHaveProperty('symptomId')
-          expect(match).toHaveProperty('method')
-        })
-      }
+      // Vague input should return symptom_only match with null location
+      const match = result[0]
+      expect(match.plumbingIssueLocId).toBeNull()
+      expect(match.symptomId).toBe('overflowing')
+      expect(match.method).toBe('symptom_only')
     })
 
     test('should handle non-native speaker simple words', () => {

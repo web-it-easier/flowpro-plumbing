@@ -7,7 +7,7 @@
 
 import {
   detectPatternStrategy
-} from '../compoundLocationHelpers.js'
+} from '../../compoundLocationHelpers.js'
 
 describe('compoundLocationHelpers - Core Tests', () => {
   

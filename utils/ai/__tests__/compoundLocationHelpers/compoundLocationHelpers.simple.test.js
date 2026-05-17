@@ -7,7 +7,7 @@
 
 import {
   deduplicateCompounds
-} from '../compoundLocationHelpers.js'
+} from '../../compoundLocationHelpers.js'
 
 describe('compoundLocationHelpers - Simple Tests', () => {
 

@@ -154,11 +154,12 @@ describe('Fallback Strategy - 3-Tier Detection', () => {
         const result = findPatterns(input)
         expect(result).toBeDefined()
         
-        // Should either detect something specific OR flag as ambiguous
+        // Should either detect something specific, flag as ambiguous, or detect symptom-only
         const isAmbiguous = result.some(r => r.context === 'ambiguous_input')
         const hasDetection = result.some(r => r.plumbingIssueLocId)
+        const hasSymptomOnly = result.some(r => r.method === 'symptom_only')
         
-        expect(isAmbiguous || hasDetection).toBe(true)
+        expect(isAmbiguous || hasDetection || hasSymptomOnly).toBe(true)
         console.log(`${isAmbiguous ? '✅' : '⚠️'} Unclear emergency: "${input}"`)
       })
     })
@@ -194,7 +195,7 @@ describe('Fallback Strategy - 3-Tier Detection', () => {
         
         const dispatch = {
           confidence: result[0].confidence || 0.1,
-          action: result[0].context === 'ambiguous_input' ? 'ASK_CLARIFICATION' : 'DISPATCH',
+          action: (result[0].context === 'ambiguous_input' || result[0].method === 'symptom_only') ? 'ASK_CLARIFICATION' : 'DISPATCH',
           area: result[0].areaAlias,
           symptom: result[0].symptomAlias
         }

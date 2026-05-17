@@ -53,7 +53,8 @@ describe('lookupMaps - Unit Tests', () => {
 
   describe('getWorkItemCategory', () => {
     test('should return correct categories for known work items', () => {
-      expect(getWorkItemCategory('toilet')).toBe('fixture')
+      expect(getWorkItemCategory('toilet')).toBeNull()  // toilet is damage location only
+      expect(getWorkItemCategory('toilet_tank')).toBe('component')  // tank is work item
       expect(getWorkItemCategory('faucet')).toBe('fixture')
       expect(getWorkItemCategory('fill_valve')).toBe('component')
       expect(getWorkItemCategory('pipe')).toBe('system')
@@ -97,8 +98,10 @@ describe('lookupMaps - Unit Tests', () => {
     })
     
     test('isFixture should check fixture category', () => {
-      expect(isFixture('toilet')).toBe(true)
-      expect(isFixture('pipe')).toBe(false)
+      expect(isFixture('faucet')).toBe(true)
+      expect(isFixture('sink_faucet')).toBe(true)
+      expect(isFixture('fill_valve')).toBe(false)  // component, not fixture
+      expect(isFixture('pipe')).toBe(false)  // system, not fixture
     })
     
     test('isAppliance should check appliance category', () => {
