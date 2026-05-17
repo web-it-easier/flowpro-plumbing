@@ -67,7 +67,7 @@ export const findAllAreasInText = (text, lookupMap) => {
     // 6. Create word-boundary regex to find exact matches
     //    \b = word boundary, ensures "bathroom" doesn't match in "bathroom vanity"
     //    \bupstairs bathroom\b matches "upstairs bathroom" but not part of other words
-    const pattern = new RegExp(`\\b${escapeRegex(aliasLower)}\\b`, 'i')
+    const pattern = new RegExp(`\\b${escapeRegex(aliasLower)}\\b`, 'gi')
     
     // 7. Execute regex to find ALL matches in the text (not just first)
     //    This catches repeated mentions like "bathroom...and bathroom again"
@@ -119,47 +119,19 @@ export const findAllAreasInText = (text, lookupMap) => {
  * @returns {Array} - Array of RegExp patterns
  */
 export const buildAreaRelationshipPatterns = (lookup) => {
-  // 1. Initialize empty array to hold all regex patterns
-  const patterns = []
-  
-  // 2. Loop through all aliases in the lookup map
-  //    lookup = { "ceiling": "ceiling", "wall": "wall", "floor": "floor", ... }
-  for (const [alias] of Object.entries(lookup)) {
-    // 3. Skip multi-word areas (they're locations, not single damage areas)
-    //    "upstairs bathroom" → skip (location)
-    //    "ceiling" → keep (damage area)
-    if (alias.includes(' ')) continue
-    
-    // 4. Create preposition pattern from our constant array
-    //    SPATIAL_PREPOSITIONS = ['from', 'in', 'at', 'above', ...]
-    //    prepositionPattern = "from|in|at|above|below|under|..."
-    const prepositionPattern = SPATIAL_PREPOSITIONS.join('|')
-    
-    // 5. Build regex pattern for this specific alias
-    //    For alias="ceiling": 
-    //    Pattern = "(ceiling)\s+(from|in|at|above|...)\s+(?:the\s+)?([^.,;!?\\n]+)"
-    //    
-    //    Breakdown:
-    //    (ceiling) = capture group 1 (damage area)
-    //    \s+ = one or more spaces
-    //    (from|in|at|...) = capture group 2 (preposition)
-    //    \s+ = one or more spaces  
-    //    (?:the\s+)? = optional "the " (non-capturing group)
-    //    ([^.,;!?\\n]+) = capture group 3 (source location - any chars except punctuation)
-    //    gi = global + case insensitive flags
-    const pattern = new RegExp(`(${alias})\\s+(${prepositionPattern})\\s+(?:the\\s+)?([^.,;!?\\n]+)`, 'gi')
-    
-    // 6. Debug: log the generated pattern
-    //    Example output: /([ceiling])\s+(from|in|at|...)\s+(?:the\s+)?([^.,;!?\\n]+)/gi
-    console.log('pattern', {pattern})
-    
-    // 7. Add this pattern to our patterns array
-    patterns.push(pattern)
-  }
-  
-  // 8. Return all generated patterns
-  //    Example: [/(ceiling)\s+(from|in|at|...)/gi, /(wall)\s+(from|in|at|...)/gi, ...]
-  return patterns
+  // Build a single combined regex for ALL aliases instead of one per alias
+  // This prevents OOM when lookup maps have hundreds of entries
+  const aliases = Object.keys(lookup).filter(a => !a.includes(' '))
+  if (aliases.length === 0) return []
+
+  const prepositionPattern = SPATIAL_PREPOSITIONS.join('|')
+  // Sort by length (longest first) so longer aliases match before shorter ones
+  const aliasPattern = aliases.sort((a, b) => b.length - a.length).map(escapeRegex).join('|')
+
+  // Single pattern: (ceiling|wall|floor|...)\s+(from|in|at|...)\s+(?:the\s+)?([^.,;!?\n]+)
+  const pattern = new RegExp(`(${aliasPattern})\\s+(${prepositionPattern})\\s+(?:the\\s+)?([^.,;!?\\n]+)`, 'gi')
+
+  return [pattern]
 }
 
 /**
@@ -170,47 +142,19 @@ export const buildAreaRelationshipPatterns = (lookup) => {
  * @returns {Array} - Array of RegExp patterns
  */
 export const buildReverseDirectionPatterns = (lookup) => {
-  // 1. Initialize empty array to hold reverse regex patterns
-  const patterns = []
-  
-  // 2. Create verb pattern from our constant array
-  //    REVERSE_DIRECTION_VERBS = ['has', 'have', 'with', 'shows', 'is leaking', ...]
-  //    verbPattern = "has|have|with|shows|showing|is leaking|are leaking|..."
+  // Build a single combined regex for ALL aliases instead of one per alias
+  // This prevents OOM when lookup maps have hundreds of entries
+  const aliases = Object.keys(lookup).filter(a => !a.includes(' '))
+  if (aliases.length === 0) return []
+
   const verbPattern = REVERSE_DIRECTION_VERBS.join('|')
-  
-  // 3. Loop through all aliases in the lookup map
-  //    lookup = { "ceiling": "ceiling", "wall": "wall", "floor": "floor", ... }
-  for (const [alias] of Object.entries(lookup)) {
-    // 4. Skip multi-word areas (they're locations, not single damage areas)
-    //    "upstairs bathroom" → skip (location)
-    //    "ceiling" → keep (damage area)
-    if (alias.includes(' ')) continue
-    
-    // 5. Build reverse regex pattern for this specific alias
-    //    For alias="ceiling":
-    //    Pattern = "([^.,;!?\\n]+)\\s+(has|have|with|...)\\s+(?:the\\s+)?(ceiling)"
-    //    
-    //    Breakdown:
-    //    ([^.,;!?\\n]+) = capture group 1 (source location - any text except punctuation)
-    //    \\s+ = one or more spaces
-    //    (has|have|with|...) = capture group 2 (reverse-direction verb)
-    //    \\s+ = one or more spaces
-    //    (?:the\\s+)? = optional "the " (non-capturing group)
-    //    (ceiling) = capture group 3 (damage area)
-    //    gi = global + case insensitive flags
-    const pattern = new RegExp(`([^.,;!?\\n]+)\\s+(${verbPattern})\\s+(?:the\\s+)?(${alias})`, 'gi')
-    
-    // 6. Debug: log the generated reverse pattern
-    //    Example output: /([^.,;!?\\n]+)\s+(has|have|with|...)\s+(?:the\s+)?(ceiling)/gi
-    console.log('reverse pattern', {pattern})
-    
-    // 7. Add this reverse pattern to our patterns array
-    patterns.push(pattern)
-  }
-  
-  // 8. Return all generated reverse patterns
-  //    Example: [/(source)\s+(has|have|with|...)\s+(ceiling)/gi, /(source)\s+(has|have|with|...)\s+(wall)/gi, ...]
-  return patterns
+  // Sort by length (longest first) so longer aliases match before shorter ones
+  const aliasPattern = aliases.sort((a, b) => b.length - a.length).map(escapeRegex).join('|')
+
+  // Single pattern: ([^.,;!?\n]+)\s+(has|have|...)\s+(?:the\s+)?(ceiling|wall|floor|...)
+  const pattern = new RegExp(`([^.,;!?\\n]+)\\s+(${verbPattern})\\s+(?:the\\s+)?(${aliasPattern})`, 'gi')
+
+  return [pattern]
 }
 
 /**
@@ -338,8 +282,10 @@ export const findAreaConnectionsInText = (text, regexPatterns, lookupMap) => {
       let sourceMatches = []
       if (lookupMap === DAMAGE_PLACE_LOOKUP) {
         // Try work locations first, then fallback to damage places
-        sourceMatches = findAllAreasInText(sourceCandidate, PLUMBING_ISSUE_ITEM_LOOKUP) || 
-                       findAllAreasInText(sourceCandidate, DAMAGE_PLACE_LOOKUP)
+        sourceMatches = findAllAreasInText(sourceCandidate, PLUMBING_ISSUE_ITEM_LOOKUP)
+        if (sourceMatches.length === 0) {
+          sourceMatches = findAllAreasInText(sourceCandidate, DAMAGE_PLACE_LOOKUP)
+        }
       } else {
         // Already searching work locations
         sourceMatches = findAllAreasInText(sourceCandidate, lookupMap)
