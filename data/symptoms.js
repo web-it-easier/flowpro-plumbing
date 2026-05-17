@@ -43,7 +43,7 @@ export default [
   },
   {
     "id": "low_pressure",
-    "aliases": ["low pressure", "low water pressure", "no water pressure", "weak flow", "weak pressure", "poor pressure", "trickle", "slow flow", "no pressure"],
+    "aliases": ["low pressure", "low water pressure", "no water pressure", "weak flow", "weak pressure", "poor pressure", "trickle", "slow flow", "no pressure", "pressure dropped", "dropped pressure", "dropped"],
     "category": "pressure_issue",
     "severity": "schedule",
     "description": "Reduced water pressure or flow rate"
