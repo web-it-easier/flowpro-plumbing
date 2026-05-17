@@ -664,12 +664,119 @@ export function findContextualMatches(text) {
     plumbingIssueReports.push(...fallbackMatches)
   }
 
-  // 12. Return all matches found across all clauses
-  //    Final result: [
-  //      {plumbingIssueLocId: "bathroom", symptomId: "dripping_and_sagging", ...},
-  //      {plumbingIssueLocId: "wall", symptomId: null, ...} (if wall had no symptoms)
-  //    ]
-  return plumbingIssueReports
+  // 12. Post-processing: detect compound relationships and merge symptoms
+  const compoundRelationships = detectAreaRelationships(text)
+
+  if (compoundRelationships.length > 0) {
+    // Build lookup of existing reports by location ID for quick merging
+    const reportsByLocation = new Map()
+    for (const report of plumbingIssueReports) {
+      const locId = report.plumbingIssueLocId
+      if (!reportsByLocation.has(locId)) {
+        reportsByLocation.set(locId, [])
+      }
+      reportsByLocation.get(locId).push(report)
+    }
+
+    const compoundResults = []
+
+    for (const rel of compoundRelationships) {
+      const workLocId = rel.workLocation.plumbingIssueLocId
+      const contextLocId = rel.contextLocation.plumbingIssueLocId
+
+      // Collect all symptoms from both locations
+      const workReports = reportsByLocation.get(workLocId) || []
+      const contextReports = reportsByLocation.get(contextLocId) || []
+      const allRelatedReports = [...workReports, ...contextReports]
+
+      // Merge symptoms: collect all unique symptom aliases
+      const allSymptoms = []
+      const seenSymptoms = new Set()
+      for (const r of allRelatedReports) {
+        if (r.symptomAlias && !seenSymptoms.has(r.symptomAlias)) {
+          seenSymptoms.add(r.symptomAlias)
+          allSymptoms.push(r.symptomAlias)
+        }
+      }
+
+      // Determine highest confidence and most severe symptom
+      const highestConfidence = Math.max(
+        ...allRelatedReports.map(r => r.confidence || 0),
+        0.87
+      )
+
+      // Create compound result with work location as primary
+      compoundResults.push({
+        plumbingIssueLocId: workLocId,
+        symptomId: allRelatedReports.find(r => r.symptomId)?.symptomId || null,
+        areaAlias: rel.workLocation.alias,
+        symptomAlias: allSymptoms.length > 0 ? allSymptoms.join(', ') : null,
+        context: `${workLocId}_${contextLocId}_compound`,
+        pattern: rel,
+        method: 'contextual',
+        confidence: highestConfidence,
+        compound: {
+          contextLocation: {
+            plumbingIssueLocId: contextLocId,
+            alias: rel.contextLocation.alias
+          },
+          workLocation: {
+            plumbingIssueLocId: workLocId,
+            alias: rel.workLocation.alias
+          }
+        }
+      })
+
+      // Remove merged individual reports from the map
+      reportsByLocation.delete(workLocId)
+      reportsByLocation.delete(contextLocId)
+    }
+
+    // Add remaining unmerged reports
+    for (const [, reports] of reportsByLocation) {
+      compoundResults.push(...reports)
+    }
+
+    return compoundResults
+  }
+
+  // 13. No compound relationships: merge symptoms for same location
+  const mergedResults = []
+  const locationGroups = new Map()
+
+  for (const report of plumbingIssueReports) {
+    const locId = report.plumbingIssueLocId
+    if (!locationGroups.has(locId)) {
+      locationGroups.set(locId, [])
+    }
+    locationGroups.get(locId).push(report)
+  }
+
+  for (const [locId, reports] of locationGroups) {
+    if (reports.length === 1) {
+      mergedResults.push(reports[0])
+      continue
+    }
+
+    // Merge symptoms from multiple reports for same location
+    const allSymptoms = []
+    const seenSymptoms = new Set()
+    for (const r of reports) {
+      if (r.symptomAlias && !seenSymptoms.has(r.symptomAlias)) {
+        seenSymptoms.add(r.symptomAlias)
+        allSymptoms.push(r.symptomAlias)
+      }
+    }
+
+    const primary = reports[0]
+    mergedResults.push({
+      ...primary,
+      symptomAlias: allSymptoms.length > 0 ? allSymptoms.join(', ') : primary.symptomAlias,
+      confidence: Math.max(...reports.map(r => r.confidence || 0))
+    })
+  }
+
+  return mergedResults
 }
 
 // ========================================
